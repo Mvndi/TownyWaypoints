@@ -18,7 +18,7 @@ Default config:
 
 ```yaml
 # This is the current version. Please do not edit.
-version: '1.5'
+version: '1.6'
 # The language file you wish to use.
 language: en_US.yml
 
@@ -78,6 +78,8 @@ stable:
   # The maximum number of blocks a player can travel between waypoints.
   # Uses the global value if -1
   max_distance: -1
+  allowed_biome_tags: # List of biome tags this plot can be created on. Takes priority over allowed_biomes.
+    - minecraft:is_overworld
   allowed_biomes:  # List of biomes this plot type can be created on. If it's not provided the plot type can be created on any biome.
     - FOREST
     - PLAINS
@@ -99,6 +101,8 @@ seaport:
   # The maximum number of blocks a player can travel between waypoints.
   # Uses the global value if -1
   max_distance: 6000
+  allowed_biome_tags: # List of biome tags this plot can be created on. Takes priority over allowed_biomes.
+    - minecraft:is_beach 
   allowed_biomes: # List of biomes this plot type can be created on. If it's not provided the plot type can be created on any biome.
     - COLD_OCEAN
     - DEEP_COLD_OCEAN

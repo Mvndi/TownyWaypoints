@@ -5,6 +5,7 @@ import com.palmergames.bukkit.towny.event.TownBlockTypeRegisterEvent;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
 import com.palmergames.bukkit.towny.object.*;
+import fr.formiko.mc.biomeutils.NMSBiomeUtils;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
 import net.mvndicraft.townywaypoints.Waypoint;
 import net.mvndicraft.townywaypoints.util.Messaging;
@@ -65,6 +66,18 @@ public final class TownyListener implements Listener
     return count;
   }
 
+  private static boolean biomeAllowed(Location loc, Waypoint waypoint) {
+    if (!waypoint.getAllowedBiomeTags().isEmpty())
+      for (String tag : waypoint.getAllowedBiomeTags()) {
+        if (NMSBiomeUtils.matchTag(loc, tag))
+          return true;
+      }
+    if (waypoint.getAllowedBiomes().isEmpty())
+      return waypoint.getAllowedBiomeTags().isEmpty();
+
+    return waypoint.getAllowedBiomes().contains(loc.getBlock().getBiome().toString());
+  }
+
   @EventHandler
   public void onPlotPreChangeTypeEvent(PlotPreChangeTypeEvent event) throws NotRegisteredException {
     TownBlock townBlock = event.getTownBlock();
@@ -81,22 +94,21 @@ public final class TownyListener implements Listener
     if (player == null)
       return;
 
-   if (!waypoint.getPermission().equals("") && !player.hasPermission(waypoint.getPermission())) {
+   if (!waypoint.getPermission().isEmpty() && !player.hasPermission(waypoint.getPermission())) {
      event.setCancelMessage(Translatable.of("msg_err_waypoint_create_insufficient_permission",waypoint.getName()).defaultLocale());
      event.setCancelled(true);
      return;
    }
 
-   if (TownyWaypoints.getEconomy().getBalance(player) - waypoint.getCost() <= 0) {
+   if (TownyWaypoints.getEconomy().balance("TownyWaypoints", player.getUniqueId()).doubleValue() - waypoint.getCost() <= 0) {
      event.setCancelMessage(Translatable.of("msg_err_waypoint_create_insufficient_funds",waypoint.getName(), waypoint.getCost()).defaultLocale());
      event.setCancelled(true);
      return;
    }
 
     Location loc = player.getLocation();
-    String biomeName = loc.getBlock().getBiome().toString();
-    if  (waypoint.getAllowedBiomes().size() != 0 && !waypoint.getAllowedBiomes().contains(biomeName)) {
-     event.setCancelMessage(Translatable.of("msg_err_biome_not_allowed",biomeName).defaultLocale());
+    if (!biomeAllowed(loc, waypoint)) {
+     event.setCancelMessage(Translatable.of("msg_err_biome_not_allowed", loc.getBlock().getBiome().toString()).defaultLocale());
      event.setCancelled(true);
      return;
     }

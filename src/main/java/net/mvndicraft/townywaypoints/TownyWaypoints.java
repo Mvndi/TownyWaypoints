@@ -6,7 +6,7 @@ import com.github.Anon8281.universalScheduler.scheduling.schedulers.TaskSchedule
 import com.google.common.collect.ImmutableList;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.*;
-import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault2.economy.Economy;
 import net.mvndicraft.townywaypoints.commands.TownyWaypointsCommand;
 import net.mvndicraft.townywaypoints.listeners.TownyListener;
 import net.mvndicraft.townywaypoints.settings.Settings;
@@ -31,6 +31,7 @@ public class TownyWaypoints extends JavaPlugin
   private static Economy economy;
   private static TaskScheduler scheduler;
   protected static final ConcurrentHashMap<String, Waypoint> waypoints = new ConcurrentHashMap<>();
+  private final String biomeTagsKey = "allowed_biome_tags";
   private final String biomeKey = "allowed_biomes";
 
   public static final String ADMIN_PERMISSION = "townywaypoints.admin";
@@ -183,7 +184,7 @@ public class TownyWaypoints extends JavaPlugin
       config.getBoolean("sea"),
       config.getBoolean("travel_with_vehicle"),
       config.getString("permission"),
-      config.getInt("max_distance"),
+      config.getInt("max_distance"), config.contains(instance.biomeTagsKey) ? config.getStringList(instance.biomeTagsKey) : new ArrayList<>(),
       config.contains(instance.biomeKey) ? config.getStringList(instance.biomeKey) : new ArrayList<>()
     );
   }

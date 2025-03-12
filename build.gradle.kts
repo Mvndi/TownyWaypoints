@@ -5,28 +5,31 @@ plugins {
 }
 
 group = "net.mvndicraft.townywaypoints"
-version = "1.5"
+version = "1.6"
 description = "Configurable plot types for Towny that players can teleport between."
 
 repositories {
-  mavenCentral()
-  maven("https://jitpack.io")
-  maven("https://repo.papermc.io/repository/maven-public/")
-  maven("https://repo.glaremasters.me/repository/towny/")
-  maven("https://repo.aikar.co/content/groups/aikar/")
+    mavenLocal()
+    mavenCentral()
+    maven("https://jitpack.io")
+    maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.glaremasters.me/repository/towny/")
+    maven("https://repo.aikar.co/content/groups/aikar/")
+    maven("https://repo.codemc.org/repository/maven-public")
 }
 
 dependencies {
-  compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
-  compileOnly("com.palmergames.bukkit.towny:towny:0.99.5.0")
-  compileOnly("io.github.townyadvanced.commentedconfiguration:CommentedConfiguration:1.0.0")
-  compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-  implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
-  implementation("com.github.Anon8281:UniversalScheduler:0.1.6")
+    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("com.palmergames.bukkit.towny:towny:0.99.5.0")
+    compileOnly("io.github.townyadvanced.commentedconfiguration:CommentedConfiguration:1.0.0")
+    compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.9")
+    implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
+    implementation("com.github.Anon8281:UniversalScheduler:0.1.6")
+    implementation("fr.formiko.mc.biomeutils:biomeutils:1.1.8")
 }
 
 java {
-  toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks {

@@ -30,6 +30,8 @@ import net.mvndicraft.townywaypoints.settings.TownyWaypointsSettings;
 import net.mvndicraft.townywaypoints.util.Messaging;
 import net.mvndicraft.townywaypoints.util.TownBlockMetaDataController;
 
+import java.math.BigDecimal;
+
 @CommandAlias("townywaypoints|twaypoints|twp")
 public class TownyWaypointsCommand extends BaseCommand {
     @Default
@@ -124,7 +126,7 @@ public class TownyWaypointsCommand extends BaseCommand {
         if (plotName.equals(""))
             plotName = Translatable.of("townywaypoints_plot_unnamed").defaultLocale();
 
-        if (!admin && TownyWaypoints.getEconomy().getBalance(player) - travelcost < 0) {
+        if (!admin && TownyWaypoints.getEconomy().balance("TownyWaypoints", player.getUniqueId()).doubleValue() - travelcost < 0) {
             Messaging.sendErrorMsg(player,
                     Translatable.of("msg_err_waypoint_travel_insufficient_funds", plotName, travelcost));
             return;
@@ -163,7 +165,7 @@ public class TownyWaypointsCommand extends BaseCommand {
 
         int cooldown = CooldownTimerTask.getCooldownRemaining(player.getName(), "waypoint");
         if (admin || cooldown == 0) {
-            TownyWaypoints.getEconomy().withdrawPlayer(player, travelcost);
+            TownyWaypoints.getEconomy().withdraw("TownyWaypoints", player.getUniqueId(), new BigDecimal(travelcost));
             if (admin)
                 Messaging.sendMsg(player, Translatable.of("msg_waypoint_travel_warmup"));
             else
