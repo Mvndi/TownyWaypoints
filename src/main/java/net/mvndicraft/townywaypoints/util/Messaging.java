@@ -11,25 +11,25 @@ import org.bukkit.command.CommandSender;
 import java.util.Objects;
 
 public class Messaging {
-    final static String prefix = Translation.of("townywaypoints_plugin_prefix");
+  final static String prefix = Translation.of("townywaypoints_plugin_prefix");
 
-    public static void sendErrorMsg(CommandSender sender, Translatable message) {
-        // Ensure the sender is not null (i.e. is an online player who is not an npc)
-        if (sender != null)
-            sender.sendMessage(prefix + Colors.Red + message.forLocale(sender));
-    }
+  public static void sendErrorMsg(CommandSender sender, Translatable message) {
+    // Ensure the sender is not null (i.e. is an online player who is not an npc)
+    if (sender != null)
+      sender.sendMessage(prefix + Colors.Red + message.forLocale(sender));
+  }
 
-    public static void sendMsg(CommandSender sender, Translatable message) {
-        // Ensure the sender is not null (i.e. is an online player who is not an npc)
-        if (sender != null)
-            sender.sendMessage(prefix + Colors.White + message.forLocale(sender));
-    }
+  public static void sendMsg(CommandSender sender, Translatable message) {
+    // Ensure the sender is not null (i.e. is an online player who is not an npc)
+    if (sender != null)
+      sender.sendMessage(prefix + Colors.White + message.forLocale(sender));
+  }
 
-    public static void sendGlobalMessage(Translatable message) {
-        TownyWaypoints.getInstance().getLogger().info(message.defaultLocale());
-        Bukkit.getOnlinePlayers().stream()
-                .filter(Objects::nonNull)
-                .filter(p -> TownyAPI.getInstance().isTownyWorld(p.getLocation().getWorld()))
-                .forEach(p -> sendMsg(p, message));
-    }
+  public static void sendGlobalMessage(Translatable message) {
+    TownyWaypoints.getInstance().getLogger().info(message.defaultLocale());
+    Bukkit.getOnlinePlayers().stream()
+            .filter(Objects::nonNull)
+            .filter(p -> TownyAPI.getInstance().isTownyWorld(p.getLocation().getWorld()))
+            .forEach(p -> sendMsg(p, message));
+  }
 }

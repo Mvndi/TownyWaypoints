@@ -11,7 +11,7 @@ stable:
   max_distance: -1
   allowed_biome_tags: # List of biome tags this plot can be created on. Takes priority over allowed_biomes.
     - minecraft:is_overworld
-  allowed_biomes:  # List of biomes this plot type can be created on. If it's not provided the plot type can be created on any biome.
+  allowed_biomes: # List of biomes this plot type can be created on. If it's not provided the plot type can be created on any biome.
     - FOREST
     - PLAINS
     - SUNFLOWER_PLAINS

@@ -5,7 +5,10 @@ import com.github.Anon8281.universalScheduler.UniversalScheduler;
 import com.github.Anon8281.universalScheduler.scheduling.schedulers.TaskScheduler;
 import com.google.common.collect.ImmutableList;
 import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.object.*;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownBlockTypeCache;
+import com.palmergames.bukkit.towny.object.TownBlockTypeHandler;
+import com.palmergames.bukkit.towny.object.Translatable;
 import net.milkbowl.vault2.economy.Economy;
 import net.mvndicraft.townywaypoints.commands.TownyWaypointsCommand;
 import net.mvndicraft.townywaypoints.listeners.TownyListener;
@@ -25,23 +28,70 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class TownyWaypoints extends JavaPlugin
-{
+public class TownyWaypoints extends JavaPlugin {
+  public static final String ADMIN_PERMISSION = "townywaypoints.admin";
+  protected static final ConcurrentHashMap<String, Waypoint> waypoints = new ConcurrentHashMap<>();
   private static TownyWaypoints instance;
   private static Economy economy;
   private static TaskScheduler scheduler;
-  protected static final ConcurrentHashMap<String, Waypoint> waypoints = new ConcurrentHashMap<>();
   private final String biomeTagsKey = "allowed_biome_tags";
   private final String biomeKey = "allowed_biomes";
 
-  public static final String ADMIN_PERMISSION = "townywaypoints.admin";
+  public static TownyWaypoints getInstance() {
+    return instance;
+  }
+
+  public static Economy getEconomy() {
+    return economy;
+  }
+
+  public static TaskScheduler getScheduler() {
+    return scheduler;
+  }
+
+  public static ConcurrentHashMap<String, Waypoint> getWaypoints() {
+    return waypoints;
+  }
+
+  public static void loadWaypoints() {
+    File waypointsDataFile = new File(instance.getDataFolder(), "waypoints.yml");
+
+    if (!waypointsDataFile.exists())
+      instance.saveResource("waypoints.yml", true);
+
+    FileConfiguration waypointsData = YamlConfiguration.loadConfiguration(waypointsDataFile);
+    Set<String> waypointsConfig = waypointsData.getKeys(false);
+    waypointsConfig.forEach(waypointConfig -> {
+      ConfigurationSection waypointConfigSection = waypointsData.getConfigurationSection(waypointConfig);
+      if (waypointConfigSection == null)
+        return;
+      Waypoint waypoint = createWaypoint(waypointConfigSection);
+      TownyListener.registerPlot(waypoint.getName(), waypoint.getMapKey(), waypoint.getCost());
+      waypoints.put(waypoint.getName(), waypoint);
+    });
+  }
+
+  private static Waypoint createWaypoint(ConfigurationSection config) {
+    return new Waypoint(
+            config.getString("name"),
+            config.getString("mapKey"),
+            config.getDouble("cost"),
+            config.getDouble("travel_cost"),
+            config.getInt("max"),
+            config.getBoolean("sea"),
+            config.getBoolean("travel_with_vehicle"),
+            config.getString("permission"),
+            config.getInt("max_distance"),
+            config.contains(instance.biomeTagsKey) ? config.getStringList(instance.biomeTagsKey) : new ArrayList<>(),
+            config.contains(instance.biomeKey) ? config.getStringList(instance.biomeKey) : new ArrayList<>()
+    );
+  }
 
   @Override
-  public void onEnable()
-  {
+  public void onEnable() {
     PluginManager plugMan = Bukkit.getPluginManager();
 
-    if(!setupEconomy()) {
+    if (!setupEconomy()) {
       getLogger().severe("Disabled due to no Vault dependency found!");
       plugMan.disablePlugin(this);
       return;
@@ -55,10 +105,10 @@ public class TownyWaypoints extends JavaPlugin
       Player player = c.getContextValue(Player.class, 0);
       ArrayList<String> towns = new ArrayList<>();
       TownyAPI.getInstance().getTowns().forEach(town -> getWaypoints().keySet().forEach(waypoint -> {
-       if (town.getTownBlockTypeCache().getNumTownBlocks(TownBlockTypeHandler.getType(waypoint), TownBlockTypeCache.CacheType.ALL) > 0 && TownBlockMetaDataController.numWaypointsWithAccess(town, player, waypoint) > 0)
-         towns.add(town.getName());
+        if (town.getTownBlockTypeCache().getNumTownBlocks(TownBlockTypeHandler.getType(waypoint), TownBlockTypeCache.CacheType.ALL) > 0 && TownBlockMetaDataController.numWaypointsWithAccess(town, player, waypoint) > 0)
+          towns.add(town.getName());
       }));
-     return towns;
+      return towns;
     });
     manager.getCommandCompletions().registerAsyncCompletion("town_waypoints", c -> {
       Player player = c.getContextValue(Player.class, 0);
@@ -72,7 +122,7 @@ public class TownyWaypoints extends JavaPlugin
         if (town.getTownBlockTypeCache().getNumTownBlocks(TownBlockTypeHandler.getType(waypoint), TownBlockTypeCache.CacheType.ALL) > 0 && TownBlockMetaDataController.numWaypointsWithAccess(town, player, waypoint) > 0)
           waypoints.add(waypoint);
       });
-     return waypoints;
+      return waypoints;
     });
     manager.getCommandCompletions().registerAsyncCompletion("waypoint_plot_names", c -> {
       Player player = c.getContextValue(Player.class, 0);
@@ -104,21 +154,18 @@ public class TownyWaypoints extends JavaPlugin
   }
 
   @Override
-  public void onLoad()
-  {
+  public void onLoad() {
     instance = this;
     scheduler = UniversalScheduler.getScheduler(instance);
     loadWaypoints();
   }
 
   @Override
-  public void onDisable()
-  {
+  public void onDisable() {
     getLogger().info("disabled!");
   }
 
-  private boolean setupEconomy()
-  {
+  private boolean setupEconomy() {
     if (this.getServer().getPluginManager().getPlugin("Vault") != null) {
       RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
       if (rsp != null)
@@ -130,62 +177,7 @@ public class TownyWaypoints extends JavaPlugin
     }
   }
 
-  public static TownyWaypoints getInstance()
-  {
-    return instance;
-  }
-
-  public static Economy getEconomy()
-  {
-    return economy;
-  }
-
-  public static TaskScheduler getScheduler()
-  {
-    return scheduler;
-  }
-
   public String getVersion() {
     return instance.getPluginMeta().getVersion();
-  }
-
-  public static ConcurrentHashMap<String, Waypoint> getWaypoints()
-  {
-    return waypoints;
-  }
-
-  public static void loadWaypoints()
-  {
-    File waypointsDataFile = new File(instance.getDataFolder(), "waypoints.yml");
-
-    if (!waypointsDataFile.exists())
-      instance.saveResource("waypoints.yml", true);
-
-    FileConfiguration waypointsData = YamlConfiguration.loadConfiguration(waypointsDataFile);
-    Set<String> waypointsConfig = waypointsData.getKeys(false);
-    waypointsConfig.forEach(waypointConfig -> {
-      ConfigurationSection waypointConfigSection = waypointsData.getConfigurationSection(waypointConfig);
-      if (waypointConfigSection == null)
-        return;
-      Waypoint waypoint = createWaypoint(waypointConfigSection);
-      TownyListener.registerPlot(waypoint.getName(), waypoint.getMapKey(), waypoint.getCost());
-      waypoints.put(waypoint.getName(), waypoint);
-    });
-  }
-
-  private static Waypoint createWaypoint(ConfigurationSection config)
-  {
-    return new Waypoint(
-      config.getString("name"),
-      config.getString("mapKey"),
-      config.getDouble("cost"),
-      config.getDouble("travel_cost"),
-      config.getInt("max"),
-      config.getBoolean("sea"),
-      config.getBoolean("travel_with_vehicle"),
-      config.getString("permission"),
-      config.getInt("max_distance"), config.contains(instance.biomeTagsKey) ? config.getStringList(instance.biomeTagsKey) : new ArrayList<>(),
-      config.contains(instance.biomeKey) ? config.getStringList(instance.biomeKey) : new ArrayList<>()
-    );
   }
 }
