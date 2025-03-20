@@ -98,7 +98,7 @@ public class TownyWaypointsCommand extends BaseCommand {
     TownBlock townBlock = null;
     for (TownBlock _townBlock : town.getTownBlocks()) {
       String plotName = _townBlock.getName();
-      if (plotName.equals(""))
+      if (plotName.isEmpty())
         plotName = Translatable.of("townywaypoints_plot_unnamed").defaultLocale();
 
       if (_townBlock.getType().getName().equals(waypointName) && plotName.equals(waypointPlotName)) {
@@ -116,7 +116,7 @@ public class TownyWaypointsCommand extends BaseCommand {
     boolean admin = player.hasPermission(TownyWaypoints.ADMIN_PERMISSION);
 
     String plotName = townBlock.getName();
-    if (plotName.equals(""))
+    if (plotName.isEmpty())
       plotName = Translatable.of("townywaypoints_plot_unnamed").defaultLocale();
 
     if (!admin && TownyWaypoints.getEconomy().balance("TownyWaypoints", player.getUniqueId()).doubleValue() - travelcost < 0) {
@@ -129,6 +129,10 @@ public class TownyWaypointsCommand extends BaseCommand {
 
     if (loc.getWorld() == null) {
       Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_spawn_not_set"));
+      return;
+    }
+    if (!TownBlockMetaDataController.hasAccess(townBlock, player) && !admin) {
+      Messaging.sendErrorMsg(player, Translatable.of("msg_err_no_access"));
       return;
     }
 

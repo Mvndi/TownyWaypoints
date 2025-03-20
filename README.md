@@ -18,7 +18,7 @@ Default config:
 
 ```yaml
 # This is the current version. Please do not edit.
-version: '1.6'
+version: '1.7'
 # The language file you wish to use.
 language: en_US.yml
 
