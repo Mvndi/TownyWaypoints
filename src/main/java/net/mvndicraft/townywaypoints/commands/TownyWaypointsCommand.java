@@ -107,7 +107,7 @@ public class TownyWaypointsCommand extends BaseCommand {
             if (plotName.isEmpty())
                 plotName = Translatable.of("townywaypoints_plot_unnamed").defaultLocale();
 
-            if (_townBlock.getType().getName().equals(waypointName) && plotName.equals(waypointPlotName)) {
+            if (_townBlock.getType().getName().equals(waypointName) && (plotName.equals(waypointPlotName) || waypointPlotName.isEmpty())) {
                 townBlock = _townBlock;
                 break;
             }
@@ -193,6 +193,14 @@ public class TownyWaypointsCommand extends BaseCommand {
             Messaging.sendErrorMsg(player,
                     Translatable.of("msg_err_waypoint_travel_cooldown", cooldown, townBlock.getName()));
         }
+    }
+
+    @Subcommand("travel")
+    @Syntax("<town> <waypoint> <plot name>")
+    @CommandCompletion("@reachable_waypointed_towns @town_waypoints @waypoint_plot_names @nothing")
+    @Description("Travel between different waypoints.")
+    public static void onTravel(Player player, String townName, String waypointName) {
+        onTravel(player, townName, waypointName, "");
     }
 
     private static void teleport(@Nonnull final Player player, @Nonnull Location loc, boolean travelWithVehicle) {
