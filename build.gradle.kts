@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "net.mvndicraft.townywaypoints"
-version = "1.8"
+version = "1.9"
 description = "Configurable plot types for Towny that players can teleport between."
 
 repositories {

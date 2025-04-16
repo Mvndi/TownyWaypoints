@@ -1,7 +1,13 @@
 package net.mvndicraft.townywaypoints.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.Syntax;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
@@ -9,10 +15,13 @@ import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.Translatable;
 import com.palmergames.bukkit.towny.tasks.CooldownTimerTask;
 import com.palmergames.paperlib.PaperLib;
+import java.math.BigDecimal;
+import javax.annotation.Nonnull;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
 import net.mvndicraft.townywaypoints.Waypoint;
 import net.mvndicraft.townywaypoints.settings.Settings;
 import net.mvndicraft.townywaypoints.settings.TownyWaypointsSettings;
+import net.mvndicraft.townywaypoints.util.LocationUtil;
 import net.mvndicraft.townywaypoints.util.Messaging;
 import net.mvndicraft.townywaypoints.util.TownBlockMetaDataController;
 import org.bukkit.GameMode;
@@ -21,9 +30,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-
-import javax.annotation.Nonnull;
-import java.math.BigDecimal;
 
 @CommandAlias("townywaypoints|twaypoints|twp")
 public class TownyWaypointsCommand extends BaseCommand {
@@ -87,7 +93,7 @@ public class TownyWaypointsCommand extends BaseCommand {
 
     @Subcommand("travel")
     @Syntax("<town> <waypoint> <plot name>")
-    @CommandCompletion("@waypointed_towns @town_waypoints @waypoint_plot_names @nothing")
+    @CommandCompletion("@reachable_waypointed_towns @town_waypoints @waypoint_plot_names @nothing")
     @Description("Travel between different waypoints.")
     public static void onTravel(Player player, String townName, String waypointName, String waypointPlotName) {
         Town town = TownyAPI.getInstance().getTown(townName);
@@ -136,13 +142,12 @@ public class TownyWaypointsCommand extends BaseCommand {
             return;
         }
 
-        double dist = player.getLocation().distance(loc);
-        int dist_to = waypoint.getMaxDistance() != -1 ? waypoint.getMaxDistance()
-                : TownyWaypointsSettings.getMaxDistance();
+        double dist = LocationUtil.getDistance(player, townBlock);
+        int maxDist = LocationUtil.getMaxDistance(waypoint);
 
-        if (!admin && (dist > dist_to)) {
+        if (!admin && (dist > maxDist)) {
             Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_travel_too_far", townBlock.getName(),
-                    dist_to));
+                    maxDist));
             return;
         }
 
