@@ -15,6 +15,7 @@ val mainMinecraftVersion = "1.21.4"
 val lowestSupportedMinecraftVersion = "1.20"
 val supportedMinecraftVersions = "$lowestSupportedMinecraftVersion - $mainMinecraftVersion"
 val townyVersion = "0.101.0.2"
+val vaultUnlockedVersion = "2.10.0"
 
 repositories {
     mavenLocal()
@@ -30,7 +31,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:$mainMinecraftVersion-R0.1-SNAPSHOT")
     compileOnly("com.palmergames.bukkit.towny:towny:$townyVersion")
     compileOnly("io.github.townyadvanced.commentedconfiguration:CommentedConfiguration:1.0.0")
-    compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.9")
+    compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.10")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("com.github.Anon8281:UniversalScheduler:0.1.6")
     implementation("fr.formiko.mc.biomeutils:biomeutils:1.1.8")
@@ -72,6 +73,7 @@ tasks {
     runServer {
         downloadPlugins {
             github("TownyAdvanced", "Towny", "$townyVersion", "towny-$townyVersion.jar") // we can't use the latest release because it's inside a zip.
+            modrinth("vaultunlocked", "$vaultUnlockedVersion")
         }
         minecraftVersion("$mainMinecraftVersion")
     }
