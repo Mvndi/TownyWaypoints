@@ -3,7 +3,8 @@ version: "$version"
 main: "$group.${name}"
 description: "$description"
 author: "ewof"
-website: "https://github.com/ewof/${name}"
+contributors: ["Hydrolien", "Gl0W1E"]
+website: "https://github.com/Mvndi/${name}"
 api-version: "$apiVersion"
 folia-supported: true
 dependencies:
