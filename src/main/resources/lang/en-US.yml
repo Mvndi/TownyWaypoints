@@ -41,3 +41,5 @@ msg_err_waypoint_p2p: 'You must be standing in a %s waypoint plot to travel to a
 msg_err_waypoint_set_spawn_insufficient_permission: 'You do not have permission to set the spawn of this waypoint!'
 msg_err_waypoint_set_open_insufficient_permission: 'You do not have permission to set the open status of this waypoint!'
 msg_deposit_reason: 'Waypoint Travel'
+msg_err_waypoints_not_found: 'No waypoints found!'
+msg_page: 'Page %s'

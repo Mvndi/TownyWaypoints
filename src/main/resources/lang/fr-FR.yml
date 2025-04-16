@@ -41,3 +41,5 @@ msg_err_waypoint_p2p: 'Vous devez être dans une parcelle d''étape %s pour voya
 msg_err_waypoint_set_spawn_insufficient_permission: 'Vous n''avez pas la permission de définir le spawn de cette étape !'
 msg_err_waypoint_set_open_insufficient_permission: 'Vous n''avez pas la permission de définir l''accessibilité de cette étape !'
 msg_deposit_reason: 'Étape de voyage'
+msg_err_waypoints_not_found: "Pas d'étapes trouvées !"
+msg_page: "Page %s"
