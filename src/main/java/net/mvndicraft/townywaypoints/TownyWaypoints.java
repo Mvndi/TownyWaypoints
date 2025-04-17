@@ -127,7 +127,7 @@ public class TownyWaypoints extends JavaPlugin {
             });
             return waypoints;
         });
-        manager.getCommandCompletions().registerAsyncCompletion("town_waypoints_pages", c -> {
+        manager.getCommandCompletions().registerAsyncCompletion("waypoints_pages", c -> {
             Player player = c.getContextValue(Player.class, 0);
             Location location = player.getLocation();
             String waypointName = c.getContextValue(String.class, 1);
@@ -138,6 +138,9 @@ public class TownyWaypoints extends JavaPlugin {
                     .count();
             int maxPage = (int) Math.floorDiv(possibilities, 10);
             return IntStream.rangeClosed(1, maxPage).mapToObj(String::valueOf).toList();
+        });
+        manager.getCommandCompletions().registerAsyncCompletion("waypoints", c -> {
+            return getWaypoints().keySet();
         });
         manager.getCommandCompletions().registerAsyncCompletion("waypoint_plot_names", c -> {
             Player player = c.getContextValue(Player.class, 0);
