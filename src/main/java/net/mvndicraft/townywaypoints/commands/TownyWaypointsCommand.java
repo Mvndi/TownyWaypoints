@@ -223,7 +223,7 @@ public class TownyWaypointsCommand extends BaseCommand {
 
     @Subcommand("list")
     @Syntax("<waypoint>")
-    @CommandCompletion("@town_waypoints @Integer @nothing")
+    @CommandCompletion("@town_waypoints @town_waypoints_pages @nothing")
     @Description("Display the list of waypoints.")
     public static void onList(Player player, String waypointName, Integer page) {
         Location location = player.getLocation();
@@ -244,7 +244,7 @@ public class TownyWaypointsCommand extends BaseCommand {
             }
             String tenValues = waypointTownBlocks.stream().skip((page - 1) * 10).limit(10)
                     .map(tb -> tb.getTownOrNull().getName() + " " + tb.getName() + " "
-                            + TownBlockMetaDataController.getSpawn(tb).distance(location) + "m"
+                            + ((int) TownBlockMetaDataController.getSpawn(tb).distance(location)) + "m"
                             + (TownBlockMetaDataController.hasAccess(tb, player) ? " (accessible)" : ""))
                     .collect(Collectors.joining("\n"));
             String message = page + "/" + maxPage + "\n" + tenValues;
@@ -254,7 +254,7 @@ public class TownyWaypointsCommand extends BaseCommand {
 
     @Subcommand("list")
     @Syntax("<waypoint>")
-    @CommandCompletion("@town_waypoints @Integer @nothing")
+    @CommandCompletion("@town_waypoints @town_waypoints_pages @nothing")
     @Description("Display the list of waypoints.")
     public static void onList(Player player, String waypointName) {
         onList(player, waypointName, 1);

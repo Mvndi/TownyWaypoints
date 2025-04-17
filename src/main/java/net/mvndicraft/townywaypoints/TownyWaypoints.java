@@ -11,8 +11,10 @@ import com.palmergames.bukkit.towny.object.TownBlockTypeHandler;
 import com.palmergames.bukkit.towny.object.Translatable;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.IntStream;
 import net.milkbowl.vault2.economy.Economy;
 import net.mvndicraft.townywaypoints.commands.TownyWaypointsCommand;
 import net.mvndicraft.townywaypoints.listeners.TownyListener;
@@ -20,6 +22,7 @@ import net.mvndicraft.townywaypoints.settings.Settings;
 import net.mvndicraft.townywaypoints.util.LocationUtil;
 import net.mvndicraft.townywaypoints.util.TownBlockMetaDataController;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -72,19 +75,12 @@ public class TownyWaypoints extends JavaPlugin {
     }
 
     private static Waypoint createWaypoint(ConfigurationSection config) {
-        return new Waypoint(
-                config.getString("name"),
-                config.getString("mapKey"),
-                config.getDouble("cost"),
-                config.getDouble("travel_cost"),
-                config.getInt("max"),
-                config.getBoolean("sea"),
-                config.getBoolean("travel_with_vehicle"),
-                config.getString("permission"),
-                config.getInt("max_distance"),
-                config.contains(instance.biomeTagsKey) ? config.getStringList(instance.biomeTagsKey) : new ArrayList<>(),
-                config.contains(instance.biomeKey) ? config.getStringList(instance.biomeKey) : new ArrayList<>()
-        );
+        return new Waypoint(config.getString("name"), config.getString("mapKey"), config.getDouble("cost"),
+                config.getDouble("travel_cost"), config.getInt("max"), config.getBoolean("sea"),
+                config.getBoolean("travel_with_vehicle"), config.getString("permission"), config.getInt("max_distance"),
+                config.contains(instance.biomeTagsKey) ? config.getStringList(instance.biomeTagsKey)
+                        : new ArrayList<>(),
+                config.contains(instance.biomeKey) ? config.getStringList(instance.biomeKey) : new ArrayList<>());
     }
 
     @Override
@@ -105,7 +101,8 @@ public class TownyWaypoints extends JavaPlugin {
             Player player = c.getContextValue(Player.class, 0);
             ArrayList<String> towns = new ArrayList<>();
             TownyAPI.getInstance().getTowns().forEach(town -> getWaypoints().keySet().forEach(waypoint -> {
-                if (town.getTownBlockTypeCache().getNumTownBlocks(TownBlockTypeHandler.getType(waypoint), TownBlockTypeCache.CacheType.ALL) > 0
+                if (town.getTownBlockTypeCache().getNumTownBlocks(TownBlockTypeHandler.getType(waypoint),
+                        TownBlockTypeCache.CacheType.ALL) > 0
                         && TownBlockMetaDataController.numWaypointsWithAccess(town, player, waypoint) > 0
                         && LocationUtil.isCloseEnough(player, getWaypoints().get(waypoint), town)) {
                     towns.add(town.getName());
@@ -122,12 +119,25 @@ public class TownyWaypoints extends JavaPlugin {
                 return waypoints;
 
             getWaypoints().keySet().forEach(waypoint -> {
-                if (town.getTownBlockTypeCache().getNumTownBlocks(TownBlockTypeHandler.getType(waypoint), TownBlockTypeCache.CacheType.ALL) > 0
+                if (town.getTownBlockTypeCache().getNumTownBlocks(TownBlockTypeHandler.getType(waypoint),
+                        TownBlockTypeCache.CacheType.ALL) > 0
                         && TownBlockMetaDataController.numWaypointsWithAccess(town, player, waypoint) > 0) {
                     waypoints.add(waypoint);
                 }
             });
             return waypoints;
+        });
+        manager.getCommandCompletions().registerAsyncCompletion("town_waypoints_pages", c -> {
+            Player player = c.getContextValue(Player.class, 0);
+            Location location = player.getLocation();
+            String waypointName = c.getContextValue(String.class, 1);
+            long possibilities = TownyAPI.getInstance().getTownBlocks().stream()
+                    .filter(tb -> tb.getType().getName().equals(waypointName)).filter(tb -> tb.hasTown())
+                    .sorted(Comparator
+                            .comparingDouble(tb -> TownBlockMetaDataController.getSpawn(tb).distance(location)))
+                    .count();
+            int maxPage = (int) Math.floorDiv(possibilities, 10);
+            return IntStream.rangeClosed(1, maxPage).mapToObj(String::valueOf).toList();
         });
         manager.getCommandCompletions().registerAsyncCompletion("waypoint_plot_names", c -> {
             Player player = c.getContextValue(Player.class, 0);
@@ -139,7 +149,8 @@ public class TownyWaypoints extends JavaPlugin {
                 return plots;
 
             town.getTownBlocks().forEach(townBlock -> {
-                if (townBlock.getType().getName().equals(c.getContextValue(String.class, 2)) && TownBlockMetaDataController.hasAccess(townBlock, player)) {
+                if (townBlock.getType().getName().equals(c.getContextValue(String.class, 2))
+                        && TownBlockMetaDataController.hasAccess(townBlock, player)) {
                     if (townBlock.getName().equals("")) {
                         plots.add(Translatable.of("townywaypoints_plot_unnamed").defaultLocale());
                     } else {
@@ -150,7 +161,12 @@ public class TownyWaypoints extends JavaPlugin {
 
             return plots;
         });
-        manager.getCommandCompletions().registerAsyncCompletion("open_statuses", c -> ImmutableList.of(Translatable.of("open_status_all").defaultLocale(), Translatable.of("open_status_allies").defaultLocale(), Translatable.of("open_status_nation").translate(), Translatable.of("open_status_town").translate(), Translatable.of("open_status_none").translate()));
+        manager.getCommandCompletions().registerAsyncCompletion("open_statuses",
+                c -> ImmutableList.of(Translatable.of("open_status_all").defaultLocale(),
+                        Translatable.of("open_status_allies").defaultLocale(),
+                        Translatable.of("open_status_nation").translate(),
+                        Translatable.of("open_status_town").translate(),
+                        Translatable.of("open_status_none").translate()));
 
         TownyListener townyListener = new TownyListener();
         plugMan.registerEvents(townyListener, instance);
