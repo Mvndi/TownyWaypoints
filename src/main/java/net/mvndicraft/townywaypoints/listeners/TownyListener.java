@@ -5,8 +5,17 @@ import com.palmergames.bukkit.towny.event.TownBlockTypeRegisterEvent;
 import com.palmergames.bukkit.towny.event.TranslationLoadEvent;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
-import com.palmergames.bukkit.towny.object.*;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownBlock;
+import com.palmergames.bukkit.towny.object.TownBlockData;
+import com.palmergames.bukkit.towny.object.TownBlockType;
+import com.palmergames.bukkit.towny.object.TownBlockTypeHandler;
+import com.palmergames.bukkit.towny.object.Translatable;
+import com.palmergames.bukkit.towny.object.TranslationLoader;
 import fr.formiko.mc.biomeutils.NMSBiomeUtils;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
 import net.mvndicraft.townywaypoints.Waypoint;
 import net.mvndicraft.townywaypoints.util.Messaging;
@@ -18,10 +27,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
 
 public final class TownyListener implements Listener {
     private final static TownyWaypoints instance = TownyWaypoints.getInstance();
@@ -95,20 +100,30 @@ public final class TownyListener implements Listener {
             return;
 
         if (!waypoint.getPermission().isEmpty() && !player.hasPermission(waypoint.getPermission())) {
-            event.setCancelMessage(Translatable.of("msg_err_waypoint_create_insufficient_permission", waypoint.getName()).defaultLocale());
+            event.setCancelMessage(Translatable
+                    .of("msg_err_waypoint_create_insufficient_permission", waypoint.getName()).defaultLocale());
             event.setCancelled(true);
             return;
         }
 
-        if (TownyWaypoints.getEconomy().balance("TownyWaypoints", player.getUniqueId()).doubleValue() - waypoint.getCost() <= 0) {
-            event.setCancelMessage(Translatable.of("msg_err_waypoint_create_insufficient_funds", waypoint.getName(), waypoint.getCost()).defaultLocale());
+        if (TownyWaypoints.getEconomy().balance("TownyWaypoints", player.getUniqueId()).doubleValue()
+                - waypoint.getCost() <= 0) {
+            event.setCancelMessage(Translatable
+                    .of("msg_err_waypoint_create_insufficient_funds", waypoint.getName(), waypoint.getCost())
+                    .defaultLocale());
             event.setCancelled(true);
             return;
         }
 
         Location loc = player.getLocation();
+        if (loc == null) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (!biomeAllowed(loc, waypoint)) {
-            event.setCancelMessage(Translatable.of("msg_err_biome_not_allowed", loc.getBlock().getBiome().toString()).defaultLocale());
+            event.setCancelMessage(
+                    Translatable.of("msg_err_biome_not_allowed", loc.getBlock().getBiome().toString()).defaultLocale());
             event.setCancelled(true);
             return;
         }

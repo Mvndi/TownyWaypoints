@@ -23,8 +23,8 @@ public class TownBlockMetaDataController {
     public static int getIdf(TownBlock townBlock, String key) {
         if (townBlock.hasMeta(key)) {
             CustomDataField<?> cdf = townBlock.getMetadata(key);
-            if (cdf instanceof IntegerDataField)
-                return ((IntegerDataField) cdf).getValue();
+            if (cdf instanceof IntegerDataField idf)
+                return idf.getValue();
         }
         return 0;
     }
@@ -35,8 +35,8 @@ public class TownBlockMetaDataController {
             if (num == 0 && cdf != null)
                 townBlock.removeMetaData(cdf);
             else {
-                if (cdf instanceof IntegerDataField) {
-                    ((IntegerDataField) cdf).setValue(num);
+                if (cdf instanceof IntegerDataField idf) {
+                    idf.setValue(num);
                     townBlock.save();
                 }
             }
@@ -47,8 +47,8 @@ public class TownBlockMetaDataController {
     public static String getSdf(TownBlock townBlock, String key) {
         if (townBlock.hasMeta(key)) {
             CustomDataField<?> cdf = townBlock.getMetadata(key);
-            if (cdf instanceof StringDataField)
-                return ((StringDataField) cdf).getValue();
+            if (cdf instanceof StringDataField sdf)
+                return sdf.getValue();
         }
         return "";
     }
@@ -59,8 +59,8 @@ public class TownBlockMetaDataController {
             if (value.equals("") && cdf != null)
                 townBlock.removeMetaData(cdf);
             else {
-                if (cdf instanceof StringDataField) {
-                    ((StringDataField) cdf).setValue(value);
+                if (cdf instanceof StringDataField sdf) {
+                    sdf.setValue(value);
                     townBlock.save();
                 }
             }
@@ -76,7 +76,8 @@ public class TownBlockMetaDataController {
     }
 
     public static Location getSpawn(TownBlock townBlock) {
-        return new Location(Bukkit.getServer().getWorld(getSdf(townBlock, spawnWorldKey)), getIdf(townBlock, spawnXKey), getIdf(townBlock, spawnYKey), getIdf(townBlock, spawnZKey));
+        return new Location(Bukkit.getServer().getWorld(getSdf(townBlock, spawnWorldKey)), getIdf(townBlock, spawnXKey),
+                getIdf(townBlock, spawnYKey), getIdf(townBlock, spawnZKey));
     }
 
     public static boolean hasAccess(TownBlock townBlock, Player player) {

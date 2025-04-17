@@ -18,7 +18,7 @@ Default config:
 
 ```yaml
 # This is the current version. Please do not edit.
-version: '1.8'
+version: '1.9'
 # The language file you wish to use.
 language: en_US.yml
 

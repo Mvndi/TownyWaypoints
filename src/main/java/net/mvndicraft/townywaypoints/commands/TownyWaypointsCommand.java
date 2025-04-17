@@ -1,7 +1,13 @@
 package net.mvndicraft.townywaypoints.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.Syntax;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
@@ -9,10 +15,16 @@ import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.Translatable;
 import com.palmergames.bukkit.towny.tasks.CooldownTimerTask;
 import com.palmergames.paperlib.PaperLib;
+import java.math.BigDecimal;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
 import net.mvndicraft.townywaypoints.Waypoint;
 import net.mvndicraft.townywaypoints.settings.Settings;
 import net.mvndicraft.townywaypoints.settings.TownyWaypointsSettings;
+import net.mvndicraft.townywaypoints.util.LocationUtil;
 import net.mvndicraft.townywaypoints.util.Messaging;
 import net.mvndicraft.townywaypoints.util.TownBlockMetaDataController;
 import org.bukkit.GameMode;
@@ -22,11 +34,10 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
-import javax.annotation.Nonnull;
-import java.math.BigDecimal;
-
 @CommandAlias("townywaypoints|twaypoints|twp")
 public class TownyWaypointsCommand extends BaseCommand {
+    static TownyAPI townyAPI = TownyAPI.getInstance();
+
     @Default
     @Description("Lists the version of the plugin")
     public static void onTownyWaypoints(CommandSender player) {
@@ -87,7 +98,7 @@ public class TownyWaypointsCommand extends BaseCommand {
 
     @Subcommand("travel")
     @Syntax("<town> <waypoint> <plot name>")
-    @CommandCompletion("@waypointed_towns @town_waypoints @waypoint_plot_names @nothing")
+    @CommandCompletion("@reachable_waypointed_towns @town_waypoints @waypoint_plot_names @nothing")
     @Description("Travel between different waypoints.")
     public static void onTravel(Player player, String townName, String waypointName, String waypointPlotName) {
         Town town = TownyAPI.getInstance().getTown(townName);
@@ -101,7 +112,8 @@ public class TownyWaypointsCommand extends BaseCommand {
             if (plotName.isEmpty())
                 plotName = Translatable.of("townywaypoints_plot_unnamed").defaultLocale();
 
-            if (_townBlock.getType().getName().equals(waypointName) && plotName.equals(waypointPlotName)) {
+            if (_townBlock.getType().getName().equals(waypointName)
+                    && (plotName.equals(waypointPlotName) || waypointPlotName.isEmpty())) {
                 townBlock = _townBlock;
                 break;
             }
@@ -119,7 +131,8 @@ public class TownyWaypointsCommand extends BaseCommand {
         if (plotName.isEmpty())
             plotName = Translatable.of("townywaypoints_plot_unnamed").defaultLocale();
 
-        if (!admin && TownyWaypoints.getEconomy().balance("TownyWaypoints", player.getUniqueId()).doubleValue() - travelcost < 0) {
+        if (!admin && TownyWaypoints.getEconomy().balance("TownyWaypoints", player.getUniqueId()).doubleValue()
+                - travelcost < 0) {
             Messaging.sendErrorMsg(player,
                     Translatable.of("msg_err_waypoint_travel_insufficient_funds", plotName, travelcost));
             return;
@@ -136,17 +149,15 @@ public class TownyWaypointsCommand extends BaseCommand {
             return;
         }
 
-        double dist = player.getLocation().distance(loc);
-        int dist_to = waypoint.getMaxDistance() != -1 ? waypoint.getMaxDistance()
-                : TownyWaypointsSettings.getMaxDistance();
+        double dist = LocationUtil.getDistance(player, townBlock);
+        int maxDist = LocationUtil.getMaxDistance(waypoint);
 
-        if (!admin && (dist > dist_to)) {
-            Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_travel_too_far", townBlock.getName(),
-                    dist_to));
+        if (!admin && (dist > maxDist)) {
+            Messaging.sendErrorMsg(player,
+                    Translatable.of("msg_err_waypoint_travel_too_far", townBlock.getName(), maxDist));
             return;
         }
 
-        TownyAPI townyAPI = TownyAPI.getInstance();
 
         TownBlock playerTownBlock = townyAPI.getTownBlock(player);
 
@@ -162,15 +173,16 @@ public class TownyWaypointsCommand extends BaseCommand {
 
         int cooldown = CooldownTimerTask.getCooldownRemaining(player.getName(), "waypoint");
         if (admin || cooldown == 0) {
-            TownyWaypoints.getEconomy().withdraw("TownyWaypoints", player.getUniqueId(), new BigDecimal(travelcost));
+            TownyWaypoints.getEconomy().withdraw("TownyWaypoints", player.getUniqueId(),
+                    BigDecimal.valueOf(travelcost));
             if (admin)
                 Messaging.sendMsg(player, Translatable.of("msg_waypoint_travel_warmup"));
             else
                 Messaging.sendMsg(player, Translatable.of("msg_waypoint_travel_warmup_cost", travelcost));
             teleport(player, loc, waypoint.travelWithVehicle());
 
-            if (TownyWaypointsSettings.getSplit() != -1 && (player.getGameMode() == GameMode.SURVIVAL
-                    || player.getGameMode() == GameMode.ADVENTURE)) {
+            if (TownyWaypointsSettings.getSplit() != -1
+                    && (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE)) {
                 double splitCostNation = travelcost * (1.0 - TownyWaypointsSettings.getSplit());
                 double splitCostTown = travelcost * TownyWaypointsSettings.getSplit();
 
@@ -190,6 +202,14 @@ public class TownyWaypointsCommand extends BaseCommand {
         }
     }
 
+    @Subcommand("travel")
+    @Syntax("<town> <waypoint> <plot name>")
+    @CommandCompletion("@reachable_waypointed_towns @town_waypoints @waypoint_plot_names @nothing")
+    @Description("Travel between different waypoints.")
+    public static void onTravel(Player player, String townName, String waypointName) {
+        onTravel(player, townName, waypointName, "");
+    }
+
     private static void teleport(@Nonnull final Player player, @Nonnull Location loc, boolean travelWithVehicle) {
         Entity vehicle = player.getVehicle();
         boolean needToTpVehicle = travelWithVehicle && player.isInsideVehicle() && vehicle != null;
@@ -198,8 +218,47 @@ public class TownyWaypointsCommand extends BaseCommand {
             vehicle.eject();
             PaperLib.teleportAsync(vehicle, loc, TeleportCause.COMMAND);
         }
-        PaperLib.teleportAsync(player, loc, TeleportCause.COMMAND);
+        townyAPI.requestTeleport(player, loc);
         if (needToTpVehicle)
             TownyWaypoints.getScheduler().runTask(loc, () -> vehicle.addPassenger(player));
+    }
+
+    @Subcommand("list")
+    @Syntax("<waypoint> <int>")
+    @CommandCompletion("@waypoints @waypoints_pages @nothing")
+    @Description("Display the list of waypoints.")
+    public static void onList(Player player, String waypointName, Integer page) {
+        Location location = player.getLocation();
+        // Get the 10 closest waypoints for page 1. Then 10 to 19 for page 2 etc.
+        List<TownBlock> waypointTownBlocks = TownyAPI.getInstance().getTownBlocks().stream()
+                .filter(tb -> tb.getType().getName().equals(waypointName)).filter(TownBlock::hasTown)
+                .sorted(Comparator.comparingDouble(tb -> TownBlockMetaDataController.getSpawn(tb).distance(location)))
+                .toList();
+
+        if (waypointTownBlocks.isEmpty()) {
+            Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_not_found", waypointName));
+        } else {
+            int maxPage = Math.floorDiv(waypointTownBlocks.size(), 10);
+            if (page < 1) {
+                page = 1;
+            } else if (page > maxPage) {
+                page = maxPage;
+            }
+            String tenValues = waypointTownBlocks.stream().skip((page - 1L) * 10).limit(10)
+                    .map(tb -> tb.getTownOrNull().getName() + " " + tb.getName() + " "
+                            + ((int) TownBlockMetaDataController.getSpawn(tb).distance(location)) + "m"
+                            + (TownBlockMetaDataController.hasAccess(tb, player) ? " (accessible)" : ""))
+                    .collect(Collectors.joining("\n"));
+            String message = page + "/" + maxPage + "\n" + tenValues;
+            Messaging.sendMsg(player, Translatable.of("msg_page", message));
+        }
+    }
+
+    @Subcommand("list")
+    @Syntax("<waypoint> <int>")
+    @CommandCompletion("@waypoints @waypoints_pages @nothing")
+    @Description("Display the list of waypoints.")
+    public static void onList(Player player, String waypointName) {
+        onList(player, waypointName, 1);
     }
 }
