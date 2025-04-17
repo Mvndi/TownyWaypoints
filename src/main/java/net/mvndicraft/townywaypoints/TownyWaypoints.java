@@ -6,6 +6,7 @@ import com.github.Anon8281.universalScheduler.scheduling.schedulers.TaskSchedule
 import com.google.common.collect.ImmutableList;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.TownBlockTypeCache;
 import com.palmergames.bukkit.towny.object.TownBlockTypeHandler;
 import com.palmergames.bukkit.towny.object.Translatable;
@@ -37,8 +38,8 @@ public class TownyWaypoints extends JavaPlugin {
     private static TownyWaypoints instance;
     private static Economy economy;
     private static TaskScheduler scheduler;
-    private final String biomeTagsKey = "allowed_biome_tags";
-    private final String biomeKey = "allowed_biomes";
+    private static final String BIOME_TAGS_KEY = "allowed_biome_tags";
+    private static final String BIOME_KEY = "allowed_biomes";
 
     public static TownyWaypoints getInstance() {
         return instance;
@@ -78,9 +79,9 @@ public class TownyWaypoints extends JavaPlugin {
         return new Waypoint(config.getString("name"), config.getString("mapKey"), config.getDouble("cost"),
                 config.getDouble("travel_cost"), config.getInt("max"), config.getBoolean("sea"),
                 config.getBoolean("travel_with_vehicle"), config.getString("permission"), config.getInt("max_distance"),
-                config.contains(instance.biomeTagsKey) ? config.getStringList(instance.biomeTagsKey)
+                config.contains(instance.BIOME_TAGS_KEY) ? config.getStringList(instance.BIOME_TAGS_KEY)
                         : new ArrayList<>(),
-                config.contains(instance.biomeKey) ? config.getStringList(instance.biomeKey) : new ArrayList<>());
+                config.contains(instance.BIOME_KEY) ? config.getStringList(instance.BIOME_KEY) : new ArrayList<>());
     }
 
     @Override
@@ -131,17 +132,15 @@ public class TownyWaypoints extends JavaPlugin {
             Player player = c.getContextValue(Player.class, 0);
             Location location = player.getLocation();
             String waypointName = c.getContextValue(String.class, 1);
-            long possibilities = TownyAPI.getInstance().getTownBlocks().stream()
-                    .filter(tb -> tb.getType().getName().equals(waypointName)).filter(tb -> tb.hasTown())
+            int possibilities = (int) TownyAPI.getInstance().getTownBlocks().stream()
+                    .filter(tb -> tb.getType().getName().equals(waypointName)).filter(TownBlock::hasTown)
                     .sorted(Comparator
                             .comparingDouble(tb -> TownBlockMetaDataController.getSpawn(tb).distance(location)))
                     .count();
-            int maxPage = (int) Math.floorDiv(possibilities, 10);
+            int maxPage = Math.floorDiv(possibilities, 10);
             return IntStream.rangeClosed(1, maxPage).mapToObj(String::valueOf).toList();
         });
-        manager.getCommandCompletions().registerAsyncCompletion("waypoints", c -> {
-            return getWaypoints().keySet();
-        });
+        manager.getCommandCompletions().registerAsyncCompletion("waypoints", c -> getWaypoints().keySet());
         manager.getCommandCompletions().registerAsyncCompletion("waypoint_plot_names", c -> {
             Player player = c.getContextValue(Player.class, 0);
             Town town = TownyAPI.getInstance().getTown(c.getContextValue(String.class, 1));

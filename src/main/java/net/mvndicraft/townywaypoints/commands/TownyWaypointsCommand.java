@@ -172,7 +172,8 @@ public class TownyWaypointsCommand extends BaseCommand {
 
         int cooldown = CooldownTimerTask.getCooldownRemaining(player.getName(), "waypoint");
         if (admin || cooldown == 0) {
-            TownyWaypoints.getEconomy().withdraw("TownyWaypoints", player.getUniqueId(), new BigDecimal(travelcost));
+            TownyWaypoints.getEconomy().withdraw("TownyWaypoints", player.getUniqueId(),
+                    BigDecimal.valueOf(travelcost));
             if (admin)
                 Messaging.sendMsg(player, Translatable.of("msg_waypoint_travel_warmup"));
             else
@@ -229,20 +230,20 @@ public class TownyWaypointsCommand extends BaseCommand {
         Location location = player.getLocation();
         // Get the 10 closest waypoints for page 1. Then 10 to 19 for page 2 etc.
         List<TownBlock> waypointTownBlocks = TownyAPI.getInstance().getTownBlocks().stream()
-                .filter(tb -> tb.getType().getName().equals(waypointName)).filter(tb -> tb.hasTown())
+                .filter(tb -> tb.getType().getName().equals(waypointName)).filter(TownBlock::hasTown)
                 .sorted(Comparator.comparingDouble(tb -> TownBlockMetaDataController.getSpawn(tb).distance(location)))
                 .toList();
 
         if (waypointTownBlocks.isEmpty()) {
             Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_not_found", waypointName));
         } else {
-            int maxPage = (int) Math.floorDiv(waypointTownBlocks.size(), 10);
+            int maxPage = Math.floorDiv(waypointTownBlocks.size(), 10);
             if (page < 1) {
                 page = 1;
             } else if (page > maxPage) {
                 page = maxPage;
             }
-            String tenValues = waypointTownBlocks.stream().skip((page - 1) * 10).limit(10)
+            String tenValues = waypointTownBlocks.stream().skip((page - 1L) * 10).limit(10)
                     .map(tb -> tb.getTownOrNull().getName() + " " + tb.getName() + " "
                             + ((int) TownBlockMetaDataController.getSpawn(tb).distance(location)) + "m"
                             + (TownBlockMetaDataController.hasAccess(tb, player) ? " (accessible)" : ""))
