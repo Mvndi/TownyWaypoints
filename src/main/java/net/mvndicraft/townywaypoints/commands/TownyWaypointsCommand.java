@@ -36,6 +36,8 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 @CommandAlias("townywaypoints|twaypoints|twp")
 public class TownyWaypointsCommand extends BaseCommand {
+    static TownyAPI townyAPI = TownyAPI.getInstance();
+
     @Default
     @Description("Lists the version of the plugin")
     public static void onTownyWaypoints(CommandSender player) {
@@ -156,7 +158,6 @@ public class TownyWaypointsCommand extends BaseCommand {
             return;
         }
 
-        TownyAPI townyAPI = TownyAPI.getInstance();
 
         TownBlock playerTownBlock = townyAPI.getTownBlock(player);
 
@@ -217,7 +218,7 @@ public class TownyWaypointsCommand extends BaseCommand {
             vehicle.eject();
             PaperLib.teleportAsync(vehicle, loc, TeleportCause.COMMAND);
         }
-        PaperLib.teleportAsync(player, loc, TeleportCause.COMMAND);
+        townyAPI.requestTeleport(player, loc);
         if (needToTpVehicle)
             TownyWaypoints.getScheduler().runTask(loc, () -> vehicle.addPassenger(player));
     }
