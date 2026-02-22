@@ -45,7 +45,7 @@ public class LocationUtil {
         Location loc1 = TownBlockMetaDataController.getSpawn(townBlock);
         Location loc2 = player.getLocation();
         // Not same world -> too far
-        if(!loc1.getWorld().getUID().equals(loc2.getWorld().getUID())) {
+        if(loc1.getWorld() == null || loc2.getWorld() == null || !loc1.getWorld().getUID().equals(loc2.getWorld().getUID())) {
             return Double.MAX_VALUE;
         }
         return loc1.distance(loc2);
