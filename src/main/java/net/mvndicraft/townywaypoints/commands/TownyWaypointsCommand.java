@@ -8,17 +8,16 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
+import com.palmergames.bukkit.towny.Towny;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.Translatable;
 import com.palmergames.bukkit.towny.tasks.CooldownTimerTask;
-import com.palmergames.paperlib.PaperLib;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
@@ -217,7 +216,7 @@ public class TownyWaypointsCommand extends BaseCommand {
 
         if (needToTpVehicle) {
             vehicle.eject();
-            PaperLib.teleportAsync(vehicle, loc, TeleportCause.COMMAND);
+            vehicle.teleportAsync(loc, TeleportCause.COMMAND);
         }
         townyAPI.requestTeleport(player, loc);
         if (needToTpVehicle)
