@@ -18,6 +18,7 @@ import com.palmergames.paperlib.PaperLib;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
@@ -231,7 +232,7 @@ public class TownyWaypointsCommand extends BaseCommand {
         Location location = player.getLocation();
         // Get the 10 closest waypoints for page 1. Then 10 to 19 for page 2 etc.
         List<TownBlock> waypointTownBlocks = TownyAPI.getInstance().getTownBlocks().stream()
-                .filter(tb -> tb.getType().getName().equals(waypointName)).filter(TownBlock::hasTown)
+                .filter(tb -> tb.getType().getName().equals(waypointName)).filter(TownBlock::hasTown).filter(tb -> tb.getWorld().getBukkitWorld() != null)
                 .sorted(Comparator.comparingDouble(tb -> TownBlockMetaDataController.getSpawn(tb).distance(location)))
                 .toList();
 
