@@ -2,7 +2,6 @@ plugins {
     id("java")
     id("io.github.goooler.shadow") version "8.1.7"
     `maven-publish`
-    id("org.sonarqube") version "6.0.1.5171" // Advanced code quality checks
     id("xyz.jpenilla.run-paper") version "2.3.1" // Paper server for testing/hotloading JVM
     id("com.modrinth.minotaur") version "2.8.7"
     id("me.modmuss50.mod-publish-plugin") version "0.5.1"
@@ -92,14 +91,6 @@ tasks {
 publishing {
     publications.create<MavenPublication>("maven") {
         from(components["java"])
-    }
-}
-
-sonar {
-    properties {
-        property("sonar.projectKey", project.name)
-        property("sonar.projectName", project.name)
-        property("sonar.host.url", "https://mvndisonar.formiko.fr")
     }
 }
 
