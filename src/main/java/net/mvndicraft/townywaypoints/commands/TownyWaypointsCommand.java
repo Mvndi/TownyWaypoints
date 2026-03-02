@@ -231,7 +231,7 @@ public class TownyWaypointsCommand extends BaseCommand {
         Location location = player.getLocation();
         // Get the 10 closest waypoints for page 1. Then 10 to 19 for page 2 etc.
         List<TownBlock> waypointTownBlocks = TownyAPI.getInstance().getTownBlocks().stream()
-                .filter(tb -> tb.getType().getName().equals(waypointName)).filter(TownBlock::hasTown).filter(tb -> tb.getWorld().getBukkitWorld() != null)
+                .filter(tb -> tb.getType().getName().equals(waypointName)).filter(TownBlock::hasTown).filter(tb -> TownBlockMetaDataController.getSpawn(tb).getWorld() != null)
                 .sorted(Comparator.comparingDouble(tb -> TownBlockMetaDataController.getSpawn(tb).distance(location)))
                 .toList();
 
@@ -244,7 +244,7 @@ public class TownyWaypointsCommand extends BaseCommand {
             } else if (page > maxPage) {
                 page = maxPage;
             }
-            String tenValues = waypointTownBlocks.stream().skip((page - 1L) * 10).limit(10)
+            String tenValues = waypointTownBlocks.stream().skip((page - 1L) * 10).limit(10).filter(tb -> tb.getTownOrNull() != null && TownBlockMetaDataController.getSpawn(tb).getWorld() != null)
                     .map(tb -> tb.getTownOrNull().getName() + " " + tb.getName() + " "
                             + ((int) TownBlockMetaDataController.getSpawn(tb).distance(location)) + "m"
                             + (TownBlockMetaDataController.hasAccess(tb, player) ? " (accessible)" : ""))

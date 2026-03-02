@@ -133,9 +133,7 @@ public class TownyWaypoints extends JavaPlugin {
             Location location = player.getLocation();
             String waypointName = c.getContextValue(String.class, 1);
             int possibilities = (int) TownyAPI.getInstance().getTownBlocks().stream()
-                    .filter(tb -> tb.getType().getName().equals(waypointName)).filter(TownBlock::hasTown)
-                    .sorted(Comparator
-                            .comparingDouble(tb -> TownBlockMetaDataController.getSpawn(tb).distance(location)))
+                    .filter(tb -> tb.getType().getName().equals(waypointName)).filter(TownBlock::hasTown).filter(tb -> TownBlockMetaDataController.getSpawn(tb).getWorld() != null)
                     .count();
             int maxPage = Math.floorDiv(possibilities, 10);
             return IntStream.rangeClosed(1, maxPage).mapToObj(String::valueOf).toList();
