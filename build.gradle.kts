@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "net.mvndicraft.townywaypoints"
-version = "1.9.2"
+version = "1.9.3"
 description = "Configurable plot types for Towny that players can teleport between."
 java.sourceCompatibility = JavaVersion.VERSION_21
 val mainMinecraftVersion = "1.21.4"
@@ -35,7 +35,7 @@ dependencies {
     compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.10")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("com.github.Anon8281:UniversalScheduler:0.1.6")
-    implementation("fr.formiko.mc.biomeutils:biomeutils:1.1.8")
+    implementation("fr.formiko.mc.biomeutils:biomeutils:1.1.14")
 }
 
 java {
