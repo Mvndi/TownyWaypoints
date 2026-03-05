@@ -50,6 +50,7 @@ public final class TownyListener implements Listener {
         try {
             instance.getLogger().info("registering new plot type " + name);
             TownBlockTypeHandler.registerType(townBlockType);
+
         } catch (TownyException e) {
             Bukkit.getLogger().severe(e.getMessage());
         }

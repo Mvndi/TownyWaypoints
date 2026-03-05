@@ -64,7 +64,7 @@ public class TownyWaypointsCommand extends BaseCommand {
         }
 
         TownBlock townBlock = TownyAPI.getInstance().getTownBlock(player);
-        if (townBlock == null) {
+        if (townBlock == null || !TownyWaypoints.getWaypoints().containsKey(townBlock.getTypeName())) {
             Messaging.sendErrorMsg(player, Translatable.of("msg_err_not_in_townblock"));
             return;
         }
@@ -219,8 +219,8 @@ public class TownyWaypointsCommand extends BaseCommand {
             vehicle.teleportAsync(loc, TeleportCause.COMMAND);
         }
         townyAPI.requestTeleport(player, loc);
-        if (needToTpVehicle)
-            TownyWaypoints.getScheduler().runTask(loc, () -> vehicle.addPassenger(player));
+//        if (needToTpVehicle)
+//            TownyWaypoints.getScheduler().runTask(loc, () -> vehicle.addPassenger(player));
     }
 
     @Subcommand("list")
