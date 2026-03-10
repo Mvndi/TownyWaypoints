@@ -1,10 +1,7 @@
 package net.mvndicraft.townywaypoints.util;
 
 import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.object.Nation;
-import com.palmergames.bukkit.towny.object.Resident;
-import com.palmergames.bukkit.towny.object.Town;
-import com.palmergames.bukkit.towny.object.TownBlock;
+import com.palmergames.bukkit.towny.object.*;
 import com.palmergames.bukkit.towny.object.metadata.CustomDataField;
 import com.palmergames.bukkit.towny.object.metadata.IntegerDataField;
 import com.palmergames.bukkit.towny.object.metadata.StringDataField;
@@ -87,41 +84,35 @@ public class TownBlockMetaDataController {
         if (res == null)
             return false;
 
-        switch (status) {
-            case "allies" -> {
-                Nation nation = res.getNationOrNull();
-                Town destTown = townBlock.getTownOrNull();
-                if (destTown == null)
-                    return false;
-                Nation destNation = destTown.getNationOrNull();
-                if (nation == null || destNation == null)
-                    return false;
-                return nation.hasAlly(destNation);
-            }
-            case "nation" -> {
-                Nation nation = res.getNationOrNull();
-                Town destTown = townBlock.getTownOrNull();
-                if (destTown == null)
-                    return false;
-                Nation destNation = destTown.getNationOrNull();
-                if (nation == null || destNation == null)
-                    return false;
-                return nation.equals(destNation);
-            }
-            case "town" -> {
-                Town town = res.getTownOrNull();
-                Town destTown = townBlock.getTownOrNull();
-                if (town == null || destTown == null)
-                    return false;
-                return town.equals(destTown);
-            }
-            case "none" -> {
-                return false;
-            }
-            default -> {
-                return true;
-            }
-        }
+        if (status.equals(Translatable.of("open_status_none").defaultLocale()))
+            return false;
+        if (status.equals(Translatable.of("open_status_all").defaultLocale()))
+            return true;
+
+        Town destTown = townBlock.getTownOrNull();
+        if (destTown == null)
+            return false;
+
+        Town playerTown = res.getTownOrNull();
+        if (playerTown != null && playerTown.equals(destTown))
+            return true;
+
+        if (status.equals(Translatable.of("open_status_town").defaultLocale()))
+            return false;
+
+        Nation playerNation = res.getNationOrNull();
+        Nation destNation = destTown.getNationOrNull();
+
+        if (playerNation != null && playerNation.equals(destNation))
+            return true;
+
+        if (status.equals(Translatable.of("open_status_nation").defaultLocale()))
+            return false;
+
+        if (status.equals(Translatable.of("open_status_allies").defaultLocale()) && playerNation != null && destNation != null)
+            return playerNation.hasAlly(destNation);
+
+        return false;
     }
 
     public static int numWaypointsWithAccess(Town town, Player player, String waypointName) {

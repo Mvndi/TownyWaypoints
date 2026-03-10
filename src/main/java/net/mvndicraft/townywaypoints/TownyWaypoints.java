@@ -12,7 +12,7 @@ import com.palmergames.bukkit.towny.object.TownBlockTypeHandler;
 import com.palmergames.bukkit.towny.object.Translatable;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
@@ -40,6 +40,7 @@ public class TownyWaypoints extends JavaPlugin {
     private static TaskScheduler scheduler;
     private static final String BIOME_TAGS_KEY = "allowed_biome_tags";
     private static final String BIOME_KEY = "allowed_biomes";
+    private List<String> open_statuses;
 
     public static TownyWaypoints getInstance() {
         return instance;
@@ -161,12 +162,12 @@ public class TownyWaypoints extends JavaPlugin {
 
             return plots;
         });
-        manager.getCommandCompletions().registerAsyncCompletion("open_statuses",
-                c -> ImmutableList.of(Translatable.of("open_status_all").defaultLocale(),
-                        Translatable.of("open_status_allies").defaultLocale(),
-                        Translatable.of("open_status_nation").translate(),
-                        Translatable.of("open_status_town").translate(),
-                        Translatable.of("open_status_none").translate()));
+        open_statuses = ImmutableList.of(Translatable.of("open_status_all").defaultLocale(),
+                Translatable.of("open_status_allies").defaultLocale(),
+                Translatable.of("open_status_nation").defaultLocale(),
+                Translatable.of("open_status_town").defaultLocale(),
+                Translatable.of("open_status_none").defaultLocale());
+        manager.getCommandCompletions().registerAsyncCompletion("open_statuses", c -> open_statuses);
 
         TownyListener townyListener = new TownyListener();
         plugMan.registerEvents(townyListener, instance);
@@ -200,5 +201,9 @@ public class TownyWaypoints extends JavaPlugin {
 
     public String getVersion() {
         return instance.getPluginMeta().getVersion();
+    }
+
+    public List<String> getOpenStatuses() {
+        return open_statuses;
     }
 }

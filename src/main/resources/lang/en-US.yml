@@ -16,6 +16,7 @@ description: >
 townywaypoints_plugin_prefix: '&f[&6TownyWaypoints&f]&r '
 msg_err_biome_not_allowed: 'This plot can''t be placed in biome %s!'
 msg_err_max_plots: 'Only %d plot(s) with this type allowed!'
+msg_err_status_invalid: 'Invalid Status!'
 open_status_all: 'all'
 open_status_allies: 'allies'
 open_status_nation: 'nation'

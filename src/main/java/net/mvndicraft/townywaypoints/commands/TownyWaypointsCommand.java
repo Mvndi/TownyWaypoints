@@ -8,7 +8,6 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
-import com.palmergames.bukkit.towny.Towny;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
@@ -66,6 +65,11 @@ public class TownyWaypointsCommand extends BaseCommand {
         TownBlock townBlock = TownyAPI.getInstance().getTownBlock(player);
         if (townBlock == null || !TownyWaypoints.getWaypoints().containsKey(townBlock.getTypeName())) {
             Messaging.sendErrorMsg(player, Translatable.of("msg_err_not_in_townblock"));
+            return;
+        }
+
+        if (!TownyWaypoints.getInstance().getOpenStatuses().contains(status)) {
+            Messaging.sendErrorMsg(player, Translatable.of("msg_err_status_invalid"));
             return;
         }
 

@@ -16,6 +16,7 @@ description: >
 townywaypoints_plugin_prefix: '&f[&6TownyWaypoints&f]&r '
 msg_err_biome_not_allowed: 'Cette parcelle ne peu pas être placée dans le biome %s !'
 msg_err_max_plots: 'Seulement %d parcelle(s) de ce type sont autorisés !'
+msg_err_status_invalid: 'Status invalide !'
 open_status_all: 'tous'
 open_status_allies: 'alliés'
 open_status_nation: 'nation'

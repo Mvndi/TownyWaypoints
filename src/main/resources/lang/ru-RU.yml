@@ -16,6 +16,7 @@ description: >
 townywaypoints_plugin_prefix: '&f[&6TownyWaypoints&f]&r '
 msg_err_biome_not_allowed: 'Этот участок нельзя поставить в биоме %s!'
 msg_err_max_plots: 'Разрешено максимум %d участков такого типа!'
+msg_err_status_invalid: 'Недействительный статус!'
 open_status_all: 'всем'
 open_status_allies: 'союзникам'
 open_status_nation: 'нации'
