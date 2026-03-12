@@ -166,7 +166,8 @@ public class TownyWaypoints extends JavaPlugin {
                 Translatable.of("open_status_allies").defaultLocale(),
                 Translatable.of("open_status_nation").defaultLocale(),
                 Translatable.of("open_status_town").defaultLocale(),
-                Translatable.of("open_status_none").defaultLocale());
+                Translatable.of("open_status_none").defaultLocale(),
+                Translatable.of("open_status_nonenemies").defaultLocale());
         manager.getCommandCompletions().registerAsyncCompletion("open_statuses", c -> open_statuses);
 
         TownyListener townyListener = new TownyListener();

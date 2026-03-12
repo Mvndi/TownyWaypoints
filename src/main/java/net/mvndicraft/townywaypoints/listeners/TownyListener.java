@@ -117,10 +117,6 @@ public final class TownyListener implements Listener {
         }
 
         Location loc = player.getLocation();
-        if (loc == null) {
-            event.setCancelled(true);
-            return;
-        }
 
         if (!biomeAllowed(loc, waypoint)) {
             event.setCancelMessage(
@@ -137,8 +133,11 @@ public final class TownyListener implements Listener {
             return;
         }
 
-        Messaging.sendMsg(player, Translatable.of("msg_spawn_set", loc.toString()));
         TownBlockMetaDataController.setSpawn(townBlock, player.getLocation());
+        Messaging.sendMsg(player, Translatable.of("msg_spawn_set", loc.toString()));
+        String status = Translatable.of("open_status_nonenemies").defaultLocale();
+        TownBlockMetaDataController.setSdf(townBlock, TownBlockMetaDataController.statusKey, status);
+        Messaging.sendMsg(player, Translatable.of("msg_status_set", status));
     }
 
     /*

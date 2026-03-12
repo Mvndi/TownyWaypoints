@@ -81,13 +81,18 @@ public class TownBlockMetaDataController {
         String status = getSdf(townBlock, statusKey);
         Resident res = TownyAPI.getInstance().getResident(player);
 
-        if (res == null)
+        if (res == null || townBlock.getTownOrNull() == null)
             return false;
 
         if (status.equals(Translatable.of("open_status_none").defaultLocale()))
             return false;
         if (status.equals(Translatable.of("open_status_all").defaultLocale()))
             return true;
+
+        Town town = townBlock.getTownOrNull();
+
+        if (status.equals(Translatable.of("open_status_nonenemies").defaultLocale()))
+            return res.getNationOrNull() == null || (town.getNationOrNull() == null && !town.hasActiveWar() ) || !res.getNationOrNull().hasEnemy(town.getNationOrNull());
 
         Town destTown = townBlock.getTownOrNull();
         if (destTown == null)
