@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
 import net.mvndicraft.townywaypoints.Waypoint;
+import net.mvndicraft.townywaypoints.hook.TownyRoadsHook;
 import net.mvndicraft.townywaypoints.settings.Settings;
 import net.mvndicraft.townywaypoints.settings.TownyWaypointsSettings;
 import net.mvndicraft.townywaypoints.util.LocationUtil;
@@ -171,9 +172,29 @@ public class TownyWaypointsCommand extends BaseCommand {
             return;
         }
 
+        if (!admin && waypoint.travelWithVehicle() && TownyRoadsHook.isEnabled()) {
+            Town playerTown = playerTownBlock.getTownOrNull();
+            if (playerTown != null && !playerTown.equals(town) && !TownyRoadsHook.areConnected(playerTown, town)) {
+                Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_no_road"));
+                return;
+            }
+        }
+
         Resident res = townyAPI.getResident(player);
         if (res == null)
             return;
+
+        if (!admin && waypoint.travelWithVehicle()) {
+            int stableBaseCooldownHours = TownyWaypointsSettings.getStableCooldown();
+            if (stableBaseCooldownHours != -1) {
+                int stableCooldown = CooldownTimerTask.getCooldownRemaining(player.getName(), "stable_waypoint");
+                if (stableCooldown > 0) {
+                    Messaging.sendErrorMsg(player, Translatable.of("msg_err_stable_waypoint_travel_cooldown",
+                            (stableCooldown + 59) / 60, plotName));
+                    return;
+                }
+            }
+        }
 
         int cooldown = CooldownTimerTask.getCooldownRemaining(player.getName(), "waypoint");
         if (admin || cooldown == 0) {
@@ -198,8 +219,26 @@ public class TownyWaypointsCommand extends BaseCommand {
                             Translatable.of("msg_deposit_reason").toString());
             }
 
-            if (!CooldownTimerTask.hasCooldown(player.getName(), "waypoint"))
-                CooldownTimerTask.addCooldownTimer(player.getName(), "waypoint", TownyWaypointsSettings.getCooldown());
+            final String playerName = player.getName();
+            final int regularCooldown = TownyWaypointsSettings.getCooldown();
+            int stableSeconds = 0;
+            if (waypoint.travelWithVehicle()) {
+                int baseHours = TownyWaypointsSettings.getStableCooldown();
+                if (baseHours != -1) {
+                    int roadCount = TownyRoadsHook.isEnabled() ? TownyRoadsHook.getRoadCount(town) : 0;
+                    double reduction = Math.min(1.0, roadCount * TownyWaypointsSettings.getStableCooldownRoadReduction() / 100.0);
+                    int baseSeconds = (int) (baseHours * 3600.0);
+                    int minSeconds = (int) (baseSeconds * TownyWaypointsSettings.getStableCooldownMinPercent() / 100.0);
+                    stableSeconds = Math.max(minSeconds, (int) (baseSeconds * (1.0 - reduction)));
+                }
+            }
+            final int stableCooldownSeconds = stableSeconds;
+            TownyWaypoints.addPendingCooldownCallback(player.getUniqueId(), () -> {
+                if (!CooldownTimerTask.hasCooldown(playerName, "waypoint"))
+                    CooldownTimerTask.addCooldownTimer(playerName, "waypoint", regularCooldown);
+                if (stableCooldownSeconds > 0 && !CooldownTimerTask.hasCooldown(playerName, "stable_waypoint"))
+                    CooldownTimerTask.addCooldownTimer(playerName, "stable_waypoint", stableCooldownSeconds);
+            });
         } else {
             Messaging.sendErrorMsg(player,
                     Translatable.of("msg_err_waypoint_travel_cooldown", cooldown, townBlock.getName()));

@@ -46,6 +46,22 @@ public enum ConfigNodes {
             "300",
             "",
             "# The amount of seconds a player must wait between waypoint travels."),
+    WAYPOINTS_RESTRICTIONS_STABLE_COOLDOWN(
+            "waypoints.restrictions.stable_cooldown",
+            "4",
+            "",
+            "# Base cooldown in hours for stable waypoint teleports. Reduced by stable_cooldown_road_reduction% per road the destination town has.",
+            "# Disabled with value of -1"),
+    WAYPOINTS_RESTRICTIONS_STABLE_COOLDOWN_ROAD_REDUCTION(
+            "waypoints.restrictions.stable_cooldown_road_reduction",
+            "15",
+            "",
+            "# Percentage of the stable cooldown removed per road connection the destination town has."),
+    WAYPOINTS_RESTRICTIONS_STABLE_COOLDOWN_MIN_PERCENT(
+            "waypoints.restrictions.stable_cooldown_min_percent",
+            "30",
+            "",
+            "# The minimum cooldown as a percentage of the base stable cooldown. Prevents roads from reducing it to zero."),
     WAYPOINTS_RESTRICTIONS_PEER_TO_PEER(
             "waypoints.restrictions.peer_to_peer",
             "true",

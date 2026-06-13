@@ -1,10 +1,12 @@
 package net.mvndicraft.townywaypoints.listeners;
 
+import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.event.PlotPreChangeTypeEvent;
 import com.palmergames.bukkit.towny.event.TownBlockTypeRegisterEvent;
 import com.palmergames.bukkit.towny.event.TranslationLoadEvent;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
+import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.TownBlockData;
@@ -18,6 +20,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
 import net.mvndicraft.townywaypoints.Waypoint;
+import net.mvndicraft.townywaypoints.hook.TownyRoadsHook;
 import net.mvndicraft.townywaypoints.util.Messaging;
 import net.mvndicraft.townywaypoints.util.TownBlockMetaDataController;
 import org.bukkit.Bukkit;
@@ -26,6 +29,9 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
 
 public final class TownyListener implements Listener {
@@ -140,9 +146,68 @@ public final class TownyListener implements Listener {
         Messaging.sendMsg(player, Translatable.of("msg_status_set", status));
     }
 
-    /*
-     * When Towny is reloading the languages, make sure we're re-injecting our language strings.
-     */
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        Runnable callback = TownyWaypoints.takePendingCooldownCallback(event.getPlayer().getUniqueId());
+        if (callback != null)
+            callback.run();
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        TownyWaypoints.takePendingCooldownCallback(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+        String[] args = event.getMessage().substring(1).split("\\s+");
+        if (args.length < 2)
+            return;
+        String base = args[0].toLowerCase();
+        if (!base.equals("t") && !base.equals("town"))
+            return;
+        if (!args[1].equalsIgnoreCase("spawn"))
+            return;
+
+        Player player = event.getPlayer();
+        if (player.hasPermission(TownyWaypoints.ADMIN_PERMISSION))
+            return;
+
+        Resident resident = TownyAPI.getInstance().getResident(player);
+        if (resident == null || !resident.hasTown())
+            return;
+
+        Town playerTown;
+        try {
+            playerTown = resident.getTown();
+        } catch (NotRegisteredException e) {
+            return;
+        }
+
+        TownBlock currentBlock = TownyAPI.getInstance().getTownBlock(player);
+        if (currentBlock == null) {
+            event.setCancelled(true);
+            Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
+            return;
+        }
+
+        Town currentTown = currentBlock.getTownOrNull();
+        if (currentTown == null) {
+            event.setCancelled(true);
+            Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
+            return;
+        }
+
+        if (currentTown.equals(playerTown))
+            return;
+
+        if (TownyRoadsHook.isEnabled() && TownyRoadsHook.areConnected(playerTown, currentTown))
+            return;
+
+        event.setCancelled(true);
+        Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onTownyLoadLanguages(TranslationLoadEvent event) {
         Plugin plugin = TownyWaypoints.getInstance();

@@ -15,6 +15,9 @@ dependencies:
     Vault:
       load: BEFORE
       required: true
+    TownyRoads:
+      load: BEFORE
+      required: false
 permissions:
   townywaypoints.admin:
     description: "Allows use of the reload command and disables all permission checks."

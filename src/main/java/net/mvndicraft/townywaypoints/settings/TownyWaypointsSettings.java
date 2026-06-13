@@ -13,6 +13,18 @@ public class TownyWaypointsSettings {
         return Settings.getInt(ConfigNodes.WAYPOINTS_RESTRICTIONS_COOLDOWN);
     }
 
+    public static int getStableCooldown() {
+        return Settings.getInt(ConfigNodes.WAYPOINTS_RESTRICTIONS_STABLE_COOLDOWN);
+    }
+
+    public static double getStableCooldownRoadReduction() {
+        return Settings.getDouble(ConfigNodes.WAYPOINTS_RESTRICTIONS_STABLE_COOLDOWN_ROAD_REDUCTION);
+    }
+
+    public static double getStableCooldownMinPercent() {
+        return Settings.getDouble(ConfigNodes.WAYPOINTS_RESTRICTIONS_STABLE_COOLDOWN_MIN_PERCENT);
+    }
+
     public static boolean getPeerToPeer() {
         return Settings.getBoolean(ConfigNodes.WAYPOINTS_RESTRICTIONS_PEER_TO_PEER);
     }

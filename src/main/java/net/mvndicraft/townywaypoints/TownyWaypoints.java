@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 import net.milkbowl.vault2.economy.Economy;
@@ -35,6 +36,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class TownyWaypoints extends JavaPlugin {
     public static final String ADMIN_PERMISSION = "townywaypoints.admin";
     protected static final ConcurrentHashMap<String, Waypoint> waypoints = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, Runnable> pendingCooldownCallbacks = new ConcurrentHashMap<>();
     private static TownyWaypoints instance;
     private static Economy economy;
     private static TaskScheduler scheduler;
@@ -56,6 +58,14 @@ public class TownyWaypoints extends JavaPlugin {
 
     public static ConcurrentHashMap<String, Waypoint> getWaypoints() {
         return waypoints;
+    }
+
+    public static void addPendingCooldownCallback(UUID uuid, Runnable callback) {
+        pendingCooldownCallbacks.put(uuid, callback);
+    }
+
+    public static Runnable takePendingCooldownCallback(UUID uuid) {
+        return pendingCooldownCallbacks.remove(uuid);
     }
 
     public static void loadWaypoints() {
