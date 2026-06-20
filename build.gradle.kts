@@ -1,21 +1,21 @@
 plugins {
     id("java")
-    id("io.github.goooler.shadow") version "8.1.7"
+    id("com.gradleup.shadow") version "9.4.1"
     `maven-publish`
-    id("xyz.jpenilla.run-paper") version "2.3.1" // Paper server for testing/hotloading JVM
+    id("xyz.jpenilla.run-paper") version "3.0.2" // Paper server for testing/hotloading JVM
     id("com.modrinth.minotaur") version "2.8.7"
     id("me.modmuss50.mod-publish-plugin") version "0.5.1"
-    id("io.papermc.hangar-publish-plugin") version "0.1.3" // publish to hangar
+    id("io.papermc.hangar-publish-plugin") version "0.1.4"
 }
 
 group = "net.mvndicraft.townywaypoints"
 version = "1.9.6"
 description = "Configurable plot types for Towny that players can teleport between."
 java.sourceCompatibility = JavaVersion.VERSION_21
-val mainMinecraftVersion = "1.21.4"
+val mainMinecraftVersion = "1.21.11"
 val lowestSupportedMinecraftVersion = "1.20"
 val supportedMinecraftVersions = "$lowestSupportedMinecraftVersion - $mainMinecraftVersion"
-val townyVersion = "0.102.0.0"
+val townyVersion = "0.103.0.0"
 val vaultUnlockedVersion = "2.10.0"
 
 repositories {
@@ -77,12 +77,7 @@ tasks {
 
     runServer {
         downloadPlugins {
-            github(
-                "TownyAdvanced",
-                "Towny",
-                "$townyVersion",
-                "towny-$townyVersion.jar"
-            ) // we can't use the latest release because it's inside a zip.
+            modrinth("towny", "$townyVersion")
             modrinth("vaultunlocked", "$vaultUnlockedVersion")
         }
         minecraftVersion("$mainMinecraftVersion")
