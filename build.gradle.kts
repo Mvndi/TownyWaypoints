@@ -16,6 +16,7 @@ val mainMinecraftVersion = "1.21.11"
 val lowestSupportedMinecraftVersion = "1.20"
 val supportedMinecraftVersions = "$lowestSupportedMinecraftVersion - $mainMinecraftVersion"
 val townyVersion = "0.103.0.0"
+val townyRoadsVersion = "0.7.0"
 val vaultUnlockedVersion = "2.10.0"
 
 repositories {
@@ -33,7 +34,7 @@ dependencies {
     compileOnly("com.palmergames.bukkit.towny:towny:$townyVersion")
     compileOnly("io.github.townyadvanced.commentedconfiguration:CommentedConfiguration:1.0.0")
     compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.10")
-    compileOnly("net.mvndicraft.townyroads:townyroads:0.7.0")
+    compileOnly("net.mvndicraft.townyroads:townyroads:$townyRoadsVersion")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("com.github.Anon8281:UniversalScheduler:0.1.6")
     implementation("fr.formiko.mc.biomeutils:biomeutils:1.1.14")
@@ -79,6 +80,8 @@ tasks {
         downloadPlugins {
             modrinth("towny", "$townyVersion")
             modrinth("vaultunlocked", "$vaultUnlockedVersion")
+            url("https://github.com/Mvndi/TownyRoads/releases/download/$townyRoadsVersion/TownyRoads-$townyRoadsVersion.jar")
+            modrinth("iconomyunlocked", "0.0.14")
         }
         minecraftVersion("$mainMinecraftVersion")
     }
