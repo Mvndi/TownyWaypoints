@@ -39,7 +39,7 @@ msg_err_waypoint_travel_too_far: '%s is too far away! Maximum travel distance is
 msg_waypoint_travel_warmup: 'Waiting to teleport...'
 msg_waypoint_travel_warmup_cost: 'Travel cost is %.2f. Waiting to teleport...'
 msg_err_waypoint_travel_cooldown: 'You must wait %ds before traveling to %s!'
-msg_err_stable_waypoint_travel_cooldown: 'You must wait %d minute(s) before using the stable again to travel to %s!'
+msg_err_stable_waypoint_travel_cooldown: 'You must wait %d minute(s) before using this waypoint again to travel to %s!'
 msg_err_waypoint_p2p: 'You must be standing in a %s waypoint plot to travel to another %s waypoint!'
 msg_err_waypoint_no_road: 'Your town is not connected to that town by a road!'
 msg_err_town_spawn_not_in_connected_town: 'You must be in your town or a road-connected town to use /t spawn!'
