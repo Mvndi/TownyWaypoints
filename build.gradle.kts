@@ -33,7 +33,7 @@ dependencies {
     compileOnly("com.palmergames.bukkit.towny:towny:$townyVersion")
     compileOnly("io.github.townyadvanced.commentedconfiguration:CommentedConfiguration:1.0.0")
     compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.10")
-    compileOnly(files("../TownyRoads/build/libs/TownyRoads-0.6.0.jar"))
+    compileOnly("net.mvndicraft.townyroads:townyroads:0.7.0")
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("com.github.Anon8281:UniversalScheduler:0.1.6")
     implementation("fr.formiko.mc.biomeutils:biomeutils:1.1.14")
