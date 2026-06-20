@@ -258,12 +258,13 @@ public class TownyWaypointsCommand extends BaseCommand {
         boolean needToTpVehicle = travelWithVehicle && player.isInsideVehicle() && vehicle != null;
 
         if (needToTpVehicle) {
-            vehicle.eject();
-            vehicle.teleportAsync(loc, TeleportCause.COMMAND);
+            // Move the vehicle only after the player's teleport fires; ejecting earlier makes the player fall and cancels Towny's warmup.
+            TownyWaypoints.addPendingVehicleCallback(player.getUniqueId(), () ->
+                vehicle.teleportAsync(loc, TeleportCause.COMMAND)
+                        .thenRun(() -> TownyWaypoints.getScheduler().runTask(loc, () -> vehicle.addPassenger(player)))
+            );
         }
         townyAPI.requestTeleport(player, loc);
-//        if (needToTpVehicle)
-//            TownyWaypoints.getScheduler().runTask(loc, () -> vehicle.addPassenger(player));
     }
 
     @Subcommand("list")

@@ -18,6 +18,7 @@ import fr.formiko.mc.biomeutils.NMSBiomeUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.UUID;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
 import net.mvndicraft.townywaypoints.Waypoint;
 import net.mvndicraft.townywaypoints.hook.TownyRoadsHook;
@@ -148,14 +149,20 @@ public final class TownyListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
-        Runnable callback = TownyWaypoints.takePendingCooldownCallback(event.getPlayer().getUniqueId());
+        UUID uuid = event.getPlayer().getUniqueId();
+        Runnable callback = TownyWaypoints.takePendingCooldownCallback(uuid);
         if (callback != null)
             callback.run();
+        Runnable vehicleCallback = TownyWaypoints.takePendingVehicleCallback(uuid);
+        if (vehicleCallback != null)
+            vehicleCallback.run();
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        TownyWaypoints.takePendingCooldownCallback(event.getPlayer().getUniqueId());
+        UUID uuid = event.getPlayer().getUniqueId();
+        TownyWaypoints.takePendingCooldownCallback(uuid);
+        TownyWaypoints.takePendingVehicleCallback(uuid);
     }
 
     @EventHandler(ignoreCancelled = true)

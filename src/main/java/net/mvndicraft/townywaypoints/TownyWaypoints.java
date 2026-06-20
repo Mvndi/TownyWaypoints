@@ -37,6 +37,7 @@ public class TownyWaypoints extends JavaPlugin {
     public static final String ADMIN_PERMISSION = "townywaypoints.admin";
     protected static final ConcurrentHashMap<String, Waypoint> waypoints = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<UUID, Runnable> pendingCooldownCallbacks = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, Runnable> pendingVehicleCallbacks = new ConcurrentHashMap<>();
     private static TownyWaypoints instance;
     private static Economy economy;
     private static TaskScheduler scheduler;
@@ -66,6 +67,14 @@ public class TownyWaypoints extends JavaPlugin {
 
     public static Runnable takePendingCooldownCallback(UUID uuid) {
         return pendingCooldownCallbacks.remove(uuid);
+    }
+
+    public static void addPendingVehicleCallback(UUID uuid, Runnable callback) {
+        pendingVehicleCallbacks.put(uuid, callback);
+    }
+
+    public static Runnable takePendingVehicleCallback(UUID uuid) {
+        return pendingVehicleCallbacks.remove(uuid);
     }
 
     public static void loadWaypoints() {
