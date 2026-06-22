@@ -15,6 +15,7 @@ import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.Translatable;
 import com.palmergames.bukkit.towny.tasks.CooldownTimerTask;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -258,10 +259,28 @@ public class TownyWaypointsCommand extends BaseCommand {
         boolean needToTpVehicle = travelWithVehicle && player.isInsideVehicle() && vehicle != null;
 
         if (needToTpVehicle) {
+            // Snapshot before any teleport; vehicle passengers are ejected during teleport and cannot be recovered from events.
+            List<Entity> extraPassengers = new ArrayList<>();
+            for (Entity passenger : vehicle.getPassengers()) {
+                if (passenger != player)
+                    extraPassengers.add(passenger);
+            }
+
             // Move the vehicle only after the player's teleport fires; ejecting earlier makes the player fall and cancels Towny's warmup.
             TownyWaypoints.addPendingVehicleCallback(player.getUniqueId(), () ->
                 vehicle.teleportAsync(loc, TeleportCause.COMMAND)
-                        .thenRun(() -> TownyWaypoints.getScheduler().runTask(loc, () -> vehicle.addPassenger(player)))
+                        .thenRun(() -> TownyWaypoints.getScheduler().runTask(loc, () -> {
+                            if (!vehicle.getPassengers().contains(player))
+                                vehicle.addPassenger(player);
+                            Location vehicleLoc = vehicle.getLocation();
+                            for (Entity passenger : extraPassengers) {
+                                if (!passenger.isValid() || passenger.isDead())
+                                    continue;
+                                passenger.teleport(vehicleLoc);
+                                if (!vehicle.getPassengers().contains(passenger))
+                                    vehicle.addPassenger(passenger);
+                            }
+                        }))
             );
         }
         townyAPI.requestTeleport(player, loc);
