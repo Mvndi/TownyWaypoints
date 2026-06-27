@@ -224,11 +224,11 @@ public class TownyWaypointsCommand extends BaseCommand {
             final int regularCooldown = TownyWaypointsSettings.getCooldown();
             int stableSeconds = 0;
             if (waypoint.travelWithVehicle()) {
-                int baseHours = TownyWaypointsSettings.getStableCooldown();
-                if (baseHours != -1) {
+                int baseMinutes = TownyWaypointsSettings.getStableCooldown();
+                if (baseMinutes != -1) {
                     int roadCount = TownyRoadsHook.isEnabled() ? TownyRoadsHook.getRoadCount(town) : 0;
                     double reduction = Math.min(1.0, roadCount * TownyWaypointsSettings.getStableCooldownRoadReduction() / 100.0);
-                    int baseSeconds = (int) (baseHours * 3600.0);
+                    int baseSeconds = (int) (baseMinutes * 60.0);
                     int minSeconds = (int) (baseSeconds * TownyWaypointsSettings.getStableCooldownMinPercent() / 100.0);
                     stableSeconds = Math.max(minSeconds, (int) (baseSeconds * (1.0 - reduction)));
                 }

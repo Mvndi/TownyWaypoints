@@ -165,55 +165,55 @@ public final class TownyListener implements Listener {
         TownyWaypoints.takePendingVehicleCallback(uuid);
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-        String[] args = event.getMessage().substring(1).split("\\s+");
-        if (args.length < 2)
-            return;
-        String base = args[0].toLowerCase();
-        if (!base.equals("t") && !base.equals("town"))
-            return;
-        if (!args[1].equalsIgnoreCase("spawn"))
-            return;
+    // @EventHandler(ignoreCancelled = true)
+    // public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+    //     String[] args = event.getMessage().substring(1).split("\\s+");
+    //     if (args.length < 2)
+    //         return;
+    //     String base = args[0].toLowerCase();
+    //     if (!base.equals("t") && !base.equals("town"))
+    //         return;
+    //     if (!args[1].equalsIgnoreCase("spawn"))
+    //         return;
 
-        Player player = event.getPlayer();
-        if (player.hasPermission(TownyWaypoints.ADMIN_PERMISSION))
-            return;
+    //     Player player = event.getPlayer();
+    //     if (player.hasPermission(TownyWaypoints.ADMIN_PERMISSION))
+    //         return;
 
-        Resident resident = TownyAPI.getInstance().getResident(player);
-        if (resident == null || !resident.hasTown())
-            return;
+    //     Resident resident = TownyAPI.getInstance().getResident(player);
+    //     if (resident == null || !resident.hasTown())
+    //         return;
 
-        Town playerTown;
-        try {
-            playerTown = resident.getTown();
-        } catch (NotRegisteredException e) {
-            return;
-        }
+    //     Town playerTown;
+    //     try {
+    //         playerTown = resident.getTown();
+    //     } catch (NotRegisteredException e) {
+    //         return;
+    //     }
 
-        TownBlock currentBlock = TownyAPI.getInstance().getTownBlock(player);
-        if (currentBlock == null) {
-            event.setCancelled(true);
-            Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
-            return;
-        }
+    //     TownBlock currentBlock = TownyAPI.getInstance().getTownBlock(player);
+    //     if (currentBlock == null) {
+    //         event.setCancelled(true);
+    //         Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
+    //         return;
+    //     }
 
-        Town currentTown = currentBlock.getTownOrNull();
-        if (currentTown == null) {
-            event.setCancelled(true);
-            Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
-            return;
-        }
+    //     Town currentTown = currentBlock.getTownOrNull();
+    //     if (currentTown == null) {
+    //         event.setCancelled(true);
+    //         Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
+    //         return;
+    //     }
 
-        if (currentTown.equals(playerTown))
-            return;
+    //     if (currentTown.equals(playerTown))
+    //         return;
 
-        if (TownyRoadsHook.isEnabled() && TownyRoadsHook.areConnected(playerTown, currentTown))
-            return;
+    //     if (TownyRoadsHook.isEnabled() && TownyRoadsHook.areConnected(playerTown, currentTown))
+    //         return;
 
-        event.setCancelled(true);
-        Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
-    }
+    //     event.setCancelled(true);
+    //     Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
+    // }
 
     @EventHandler(ignoreCancelled = true)
     public void onTownyLoadLanguages(TranslationLoadEvent event) {

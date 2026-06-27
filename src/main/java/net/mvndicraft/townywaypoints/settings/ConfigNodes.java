@@ -9,6 +9,12 @@ public enum ConfigNodes {
             "en_US.yml",
             "# The language file you wish to use."),
     WAYPOINTS("waypoints", "", ""),
+    WAYPOINTS_TOWNY_ROADS_ENABLED(
+            "waypoints.towny_roads.enabled",
+            "false",
+            "",
+            "# If true a road will be required between towns used for waypoints.",
+            "# Disabled with value of false"),
     WAYPOINTS_ECONOMY(
             "waypoints.economy",
             "",
@@ -50,7 +56,7 @@ public enum ConfigNodes {
             "waypoints.restrictions.stable_cooldown",
             "4",
             "",
-            "# Base cooldown in hours for stable waypoint teleports. Reduced by stable_cooldown_road_reduction% per road the destination town has.",
+            "# Base cooldown in minutes for stable waypoint teleports. Reduced by stable_cooldown_road_reduction% per road the destination town has.",
             "# Disabled with value of -1"),
     WAYPOINTS_RESTRICTIONS_STABLE_COOLDOWN_ROAD_REDUCTION(
             "waypoints.restrictions.stable_cooldown_road_reduction",
