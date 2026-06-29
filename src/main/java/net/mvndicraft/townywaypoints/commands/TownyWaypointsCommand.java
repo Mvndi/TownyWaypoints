@@ -28,9 +28,11 @@ import net.mvndicraft.townywaypoints.settings.TownyWaypointsSettings;
 import net.mvndicraft.townywaypoints.util.LocationUtil;
 import net.mvndicraft.townywaypoints.util.Messaging;
 import net.mvndicraft.townywaypoints.util.TownBlockMetaDataController;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -259,6 +261,8 @@ public class TownyWaypointsCommand extends BaseCommand {
         boolean needToTpVehicle = travelWithVehicle && player.isInsideVehicle() && vehicle != null;
 
         if (needToTpVehicle) {
+            closeVehicleInventoryViewers(vehicle);
+
             // Snapshot before any teleport; vehicle passengers are ejected during teleport and cannot be recovered from events.
             List<Entity> extraPassengers = new ArrayList<>();
             for (Entity passenger : vehicle.getPassengers()) {
@@ -267,7 +271,8 @@ public class TownyWaypointsCommand extends BaseCommand {
             }
 
             // Move the vehicle only after the player's teleport fires; ejecting earlier makes the player fall and cancels Towny's warmup.
-            TownyWaypoints.addPendingVehicleCallback(player.getUniqueId(), () ->
+            TownyWaypoints.addPendingVehicleCallback(player.getUniqueId(), () -> {
+                closeVehicleInventoryViewers(vehicle);
                 vehicle.teleportAsync(loc, TeleportCause.COMMAND)
                         .thenRun(() -> TownyWaypoints.getScheduler().runTask(loc, () -> {
                             if (!vehicle.getPassengers().contains(player))
@@ -280,10 +285,19 @@ public class TownyWaypointsCommand extends BaseCommand {
                                 if (!vehicle.getPassengers().contains(passenger))
                                     vehicle.addPassenger(passenger);
                             }
-                        }))
-            );
+                            closeVehicleInventoryViewers(vehicle);
+                        }));
+            });
         }
         townyAPI.requestTeleport(player, loc);
+    }
+
+    private static void closeVehicleInventoryViewers(@Nonnull Entity vehicle) {
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            Inventory top = online.getOpenInventory().getTopInventory();
+            if (top.getHolder() == vehicle)
+                online.closeInventory();
+        }
     }
 
     @Subcommand("list")
