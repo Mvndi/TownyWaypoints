@@ -1,6 +1,7 @@
 package net.mvndicraft.townywaypoints.listeners;
 
 import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.event.PlotPreChangeTypeEvent;
 import com.palmergames.bukkit.towny.event.TownBlockTypeRegisterEvent;
 import com.palmergames.bukkit.towny.event.TranslationLoadEvent;
@@ -20,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
+import net.mvndicraft.townywaypoints.VehicleTravelWarmup;
 import net.mvndicraft.townywaypoints.Waypoint;
 import net.mvndicraft.townywaypoints.hook.TownyRoadsHook;
 import net.mvndicraft.townywaypoints.util.Messaging;
@@ -27,10 +29,14 @@ import net.mvndicraft.townywaypoints.util.TownBlockMetaDataController;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
@@ -153,16 +159,49 @@ public final class TownyListener implements Listener {
         Runnable callback = TownyWaypoints.takePendingCooldownCallback(uuid);
         if (callback != null)
             callback.run();
-        Runnable vehicleCallback = TownyWaypoints.takePendingVehicleCallback(uuid);
-        if (vehicleCallback != null)
-            vehicleCallback.run();
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (!TownySettings.isMovementCancellingSpawnWarmup())
+            return;
+
+        Player player = event.getPlayer();
+        if (!VehicleTravelWarmup.hasPending(player.getUniqueId()))
+            return;
+        if (player.isInsideVehicle())
+            return;
+
+        Location to = event.getTo();
+        Location from = event.getFrom();
+        if (to == null)
+            return;
+        if (from.getBlockX() == to.getBlockX() && from.getBlockY() == to.getBlockY()
+                && from.getBlockZ() == to.getBlockZ())
+            return;
+
+        VehicleTravelWarmup.cancel(player.getUniqueId());
+        Messaging.sendErrorMsg(player, Translatable.of("msg_err_teleport_cancelled"));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerDamage(EntityDamageEvent event) {
+        if (!TownySettings.isDamageCancellingSpawnWarmup())
+            return;
+        if (!(event.getEntity() instanceof Player player))
+            return;
+        if (!VehicleTravelWarmup.hasPending(player.getUniqueId()))
+            return;
+
+        VehicleTravelWarmup.cancel(player.getUniqueId());
+        Messaging.sendErrorMsg(player, Translatable.of("msg_err_teleport_cancelled_damage"));
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
         TownyWaypoints.takePendingCooldownCallback(uuid);
-        TownyWaypoints.takePendingVehicleCallback(uuid);
+        VehicleTravelWarmup.cancel(uuid);
     }
 
     // @EventHandler(ignoreCancelled = true)
