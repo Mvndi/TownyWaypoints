@@ -174,7 +174,7 @@ public class TownyWaypointsCommand extends BaseCommand {
             return;
         }
 
-        if (!admin && waypoint.travelWithVehicle() && TownyRoadsHook.isEnabled()) {
+        if (!admin && TownyRoadsHook.isEnabled()) {
             Town playerTown = playerTownBlock.getTownOrNull();
             if (playerTown != null && !playerTown.equals(town) && !TownyRoadsHook.areConnected(playerTown, town)) {
                 Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_no_road"));
