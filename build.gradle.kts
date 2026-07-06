@@ -112,7 +112,81 @@ tasks.register("echoReleaseName") {
 val versionString: String = version as String
 val isRelease: Boolean = !versionString.contains("SNAPSHOT")
 
-val modrinthVersions = "1.20.1, 1.20.2, 1.20.3, 1.20.4, 1.20.5, 1.20.6, 1.21, 1.21.1, 1.21.2, 1.21.3, 1.21.4"
+// Do an array of game versions from supportedMinecraftVersions
+fun expandMinecraftVersions(range: String): List<String> {
+
+    val latestPatches = linkedMapOf(
+        "1.20" to 6,
+        "1.21" to 11,
+        "26.1" to 2
+    )
+
+    data class Version(
+        val base: String,
+        val patch: Int
+    )
+
+    fun parse(version: String): Version {
+        val parts = version.trim().split('.')
+
+        return if (parts.size <= 2) {
+            Version(parts.joinToString("."), 0)
+        } else {
+            Version(
+                parts.dropLast(1).joinToString("."),
+                parts.last().toInt()
+            )
+        }
+    }
+
+    val (startStr, endStr) = range.split(" - ").map(String::trim)
+
+    val start = parse(startStr)
+    val end = parse(endStr)
+
+    val orderedBases = latestPatches.keys.toList()
+
+    val startIndex = orderedBases.indexOf(start.base)
+    val endIndex = orderedBases.indexOf(end.base)
+
+    require(startIndex != -1) {
+        "Unknown Minecraft version base: ${start.base}"
+    }
+
+    require(endIndex != -1) {
+        "Unknown Minecraft version base: ${end.base}"
+    }
+
+    require(startIndex <= endIndex) {
+        "Start version must be before end version"
+    }
+
+    val result = mutableListOf<String>()
+
+    for (i in startIndex..endIndex) {
+
+        val base = orderedBases[i]
+
+        val fromPatch =
+            if (base == start.base) start.patch else 0
+
+        val toPatch =
+            if (base == end.base)
+                end.patch
+            else
+                latestPatches[base]!!
+
+        for (patch in fromPatch..toPatch) {
+            result += if (patch == 0) {
+                base
+            } else {
+                "$base.$patch"
+            }
+        }
+    }
+
+    return result
+}
 
 modrinth {
     token.set(System.getenv("MODRINTH_TOKEN"))
@@ -121,7 +195,7 @@ modrinth {
     versionType.set("release")
     versionName.set("${project.name} ${versionNumber.get()}")
     uploadFile.set(tasks.jar.get().archiveFile)
-    gameVersions.addAll(modrinthVersions.split(",").map { it.trim() })
+    gameVersions.addAll(expandMinecraftVersions(supportedMinecraftVersions)) // Must be an array, even with only one version
     loaders.addAll("paper", "folia")
     changelog.set(readChangelog())
 
