@@ -24,3 +24,7 @@
   - fixed teleport cooldowns
   - Town that can't be reach because of distance are not in the tab completion of the travel command anymore.
   - Add a `/twp list` command to list all waypoints, sorted by distance to the player.
+1.10
+  - cost & cooldown are applied after tp only
+  - fix tp with horse bypassing the cooldown & the no move require.
+  - compatibility with TownyRoads
