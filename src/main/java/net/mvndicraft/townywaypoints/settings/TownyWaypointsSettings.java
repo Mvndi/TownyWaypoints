@@ -1,6 +1,10 @@
 package net.mvndicraft.townywaypoints.settings;
 
 public class TownyWaypointsSettings {
+
+    public static boolean getDebug() {
+        return Settings.getBoolean(ConfigNodes.DEBUG);
+    }
     public static double getSplit() {
         return Settings.getDouble(ConfigNodes.WAYPOINTS_ECONOMY_SPLIT);
     }
