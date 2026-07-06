@@ -9,7 +9,6 @@ import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
 import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
@@ -21,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
 import net.mvndicraft.townywaypoints.VehicleTravelWarmup;
 import net.mvndicraft.townywaypoints.Waypoint;
@@ -190,7 +190,9 @@ public class TownyWaypointsCommand extends BaseCommand {
         if (res == null)
             return;
 
-        int cooldown = CooldownTimerTask.getCooldownRemaining(player.getName(), "waypoint");
+        final String playerName = player.getName();
+        int cooldown = CooldownTimerTask.getCooldownRemaining(playerName, "waypoint");
+        TownyWaypoints.debug(() -> "Cooldown: " + cooldown);
         if (admin || cooldown == 0) {
             if (admin)
                 Messaging.sendMsg(player, Translatable.of("msg_waypoint_travel_warmup"));
@@ -210,7 +212,7 @@ public class TownyWaypointsCommand extends BaseCommand {
                             Translatable.of("msg_deposit_reason").toString());
             }
 
-            final String playerName = player.getName();
+            
             final int regularCooldown = TownyWaypointsSettings.getCooldown();
             int stableSeconds = 0;
             if (waypoint.travelWithVehicle()) {
@@ -230,6 +232,7 @@ public class TownyWaypointsCommand extends BaseCommand {
                         CooldownTimerTask.addCooldownTimer(playerName, "waypoint", stableCooldownSeconds);
                     else
                         CooldownTimerTask.addCooldownTimer(playerName, "waypoint", regularCooldown);
+                    TownyWaypoints.debug(() -> "Cooldown set to: " + CooldownTimerTask.getCooldownRemaining(playerName, "waypoint"));
                 }
                 TownyWaypoints.debug(() -> player.getName() + " cooldown set to " + CooldownTimerTask.getCooldownRemaining(player.getName(), "waypoint"));
                 TownyWaypoints.getEconomy().withdraw("TownyWaypoints", player.getUniqueId(),
@@ -238,8 +241,9 @@ public class TownyWaypointsCommand extends BaseCommand {
             };
             teleport(player, loc, waypoint.travelWithVehicle(), cooldownCallback, admin);
         } else {
+            Town currentTown = townBlock.getTownOrNull();
             Messaging.sendErrorMsg(player,
-                    Translatable.of("msg_err_waypoint_travel_cooldown", cooldown, townBlock.getName()));
+                    Translatable.of("msg_err_waypoint_travel_cooldown", cooldown, currentTown == null ? "" : currentTown.getName()));
         }
     }
 
@@ -255,54 +259,48 @@ public class TownyWaypointsCommand extends BaseCommand {
         Entity vehicle = player.getVehicle();
         boolean needToTpVehicle = travelWithVehicle && player.isInsideVehicle() && vehicle != null;
 
+        List<Entity> extraPassengers = new ArrayList<>();
+        boolean skipWarmup = admin || player.hasPermission("towny.admin.spawn.nowarmup");
         if (needToTpVehicle) {
             closeTravelingPlayerVehicleInventory(vehicle, player);
-
-            List<Entity> extraPassengers = new ArrayList<>();
+            
             for (Entity passenger : vehicle.getPassengers()) {
                 if (passenger != player)
                     extraPassengers.add(passenger);
             }
-
-            boolean skipWarmup = admin || player.hasPermission("towny.admin.spawn.nowarmup");
+            
             TownyWaypoints.debug(() -> "teleporting " + player.getName() + "and vehicle to " + loc);
-            VehicleTravelWarmup.schedule(player, vehicle, extraPassengers, loc, cooldownCallback, skipWarmup);
-            return;
         }
+        VehicleTravelWarmup.schedule(player, vehicle, extraPassengers, loc, cooldownCallback, skipWarmup);
+    }
 
-        if(TownySettings.getTeleportWarmupTime() > 0) {
-            TownyWaypoints.debug(() -> "teleporting " + player.getName() + " to " + loc + " with warmup");
-            TownyWaypoints.addPendingCooldownCallback(player.getUniqueId(), cooldownCallback);
-            townyAPI.requestTeleport(player, loc);
+    public static void executeVehicleTeleport(@Nonnull Player player, @Nullable Entity vehicle,
+            @Nonnull List<Entity> extraPassengers, @Nonnull Location loc, @Nonnull Runnable cooldownCallback) {
+        if(vehicle != null) {
+            closeTravelingPlayerVehicleInventory(vehicle, player);
+    
+            vehicle.teleportAsync(loc, TeleportCause.COMMAND)
+                    .thenRun(() -> TownyWaypoints.getScheduler().runTask(loc, () -> {
+                        if (!vehicle.getPassengers().contains(player))
+                            player.teleportAsync(loc, TeleportCause.COMMAND).thenRun(() -> vehicle.addPassenger(player));
+    
+                        Location vehicleLoc = vehicle.getLocation();
+                        for (Entity passenger : extraPassengers) {
+                            if (!passenger.isValid() || passenger.isDead())
+                                continue;
+                            passenger.teleport(vehicleLoc);
+                            if (!vehicle.getPassengers().contains(passenger))
+                                passenger.teleportAsync(loc, TeleportCause.COMMAND)
+                                        .thenRun(() -> vehicle.addPassenger(passenger));
+                        }
+    
+                        closeTravelingPlayerVehicleInventory(vehicle, player);
+                        cooldownCallback.run();
+                    }));
         } else {
-            TownyWaypoints.debug(() -> "teleporting " + player.getName() + " to " + loc + " without warmup");
             player.teleportAsync(loc, TeleportCause.COMMAND);
             cooldownCallback.run();
         }
-    }
-
-    public static void executeVehicleTeleport(@Nonnull Player player, @Nonnull Entity vehicle,
-            @Nonnull List<Entity> extraPassengers, @Nonnull Location loc, @Nonnull Runnable cooldownCallback) {
-        closeTravelingPlayerVehicleInventory(vehicle, player);
-
-        vehicle.teleportAsync(loc, TeleportCause.COMMAND)
-                .thenRun(() -> TownyWaypoints.getScheduler().runTask(loc, () -> {
-                    if (!vehicle.getPassengers().contains(player))
-                        player.teleportAsync(loc, TeleportCause.COMMAND).thenRun(() -> vehicle.addPassenger(player));
-
-                    Location vehicleLoc = vehicle.getLocation();
-                    for (Entity passenger : extraPassengers) {
-                        if (!passenger.isValid() || passenger.isDead())
-                            continue;
-                        passenger.teleport(vehicleLoc);
-                        if (!vehicle.getPassengers().contains(passenger))
-                            passenger.teleportAsync(loc, TeleportCause.COMMAND)
-                                    .thenRun(() -> vehicle.addPassenger(passenger));
-                    }
-
-                    closeTravelingPlayerVehicleInventory(vehicle, player);
-                    cooldownCallback.run();
-                }));
     }
 
     private static void closeTravelingPlayerVehicleInventory(@Nonnull Entity vehicle, @Nonnull Player player) {

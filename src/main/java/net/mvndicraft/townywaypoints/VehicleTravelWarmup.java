@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import net.mvndicraft.townywaypoints.commands.TownyWaypointsCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -27,12 +28,12 @@ public final class VehicleTravelWarmup {
         PENDING.remove(playerId);
     }
 
-    public static void schedule(Player player, Entity vehicle, List<Entity> extraPassengers, Location destination,
+    public static void schedule(Player player, @Nullable Entity vehicle, List<Entity> extraPassengers, Location destination,
             Runnable onComplete, boolean skipWarmup) {
         cancel(player.getUniqueId());
 
         PendingTravel pending = new PendingTravel(
-                vehicle.getUniqueId(),
+                vehicle == null ? null : vehicle.getUniqueId(),
                 extraPassengers.stream().map(Entity::getUniqueId).collect(Collectors.toList()),
                 destination.clone(),
                 onComplete);
@@ -45,9 +46,16 @@ public final class VehicleTravelWarmup {
                 return;
 
             Player onlinePlayer = Bukkit.getPlayer(player.getUniqueId());
-            Entity onlineVehicle = Bukkit.getEntity(travel.vehicleId());
-            if (onlinePlayer == null || !onlinePlayer.isOnline() || onlineVehicle == null || !onlineVehicle.isValid())
+            if (onlinePlayer == null || !onlinePlayer.isOnline())
                 return;
+
+            Entity onlineVehicle = null;
+            if(travel.vehicleId()!= null) {
+                onlineVehicle = Bukkit.getEntity(travel.vehicleId());
+                if(!onlineVehicle.isValid()) {
+                    return;
+                }
+            }
 
             List<Entity> extras = travel.extraPassengerIds().stream()
                     .map(Bukkit::getEntity)

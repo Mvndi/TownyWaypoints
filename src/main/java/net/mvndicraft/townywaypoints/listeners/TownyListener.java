@@ -1,13 +1,11 @@
 package net.mvndicraft.townywaypoints.listeners;
 
-import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.event.PlotPreChangeTypeEvent;
 import com.palmergames.bukkit.towny.event.TownBlockTypeRegisterEvent;
 import com.palmergames.bukkit.towny.event.TranslationLoadEvent;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
-import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.TownBlockData;
@@ -23,19 +21,16 @@ import java.util.UUID;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
 import net.mvndicraft.townywaypoints.VehicleTravelWarmup;
 import net.mvndicraft.townywaypoints.Waypoint;
-import net.mvndicraft.townywaypoints.hook.TownyRoadsHook;
 import net.mvndicraft.townywaypoints.util.Messaging;
 import net.mvndicraft.townywaypoints.util.TownBlockMetaDataController;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -169,15 +164,8 @@ public final class TownyListener implements Listener {
         Player player = event.getPlayer();
         if (!VehicleTravelWarmup.hasPending(player.getUniqueId()))
             return;
-        if (player.isInsideVehicle())
-            return;
 
-        Location to = event.getTo();
-        Location from = event.getFrom();
-        if (to == null)
-            return;
-        if (from.getBlockX() == to.getBlockX() && from.getBlockY() == to.getBlockY()
-                && from.getBlockZ() == to.getBlockZ())
+        if (!event.hasChangedBlock())
             return;
 
         VehicleTravelWarmup.cancel(player.getUniqueId());
