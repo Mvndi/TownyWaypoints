@@ -37,7 +37,7 @@ msg_err_waypoint_create_insufficient_funds: 'Fond insuffisant ! Créer un(e) %s 
 msg_err_waypoint_create_insufficient_permission: 'Vous n''avez pas la permission de créer une étape %s !'
 msg_err_waypoint_travel_too_far: '%s est trop loin ! La distance de voyage maximale est %d.'
 msg_waypoint_travel_warmup: 'En attente de la téléportation...'
-msg_waypoint_travel_warmup_cost: 'La téléportation vous coute %.2f. En attente de la téléportation...'
+msg_waypoint_travel_warmup_cost: 'La téléportation vous coute %.2f. En attente de la téléportation vers %s %s...'
 msg_err_waypoint_travel_cooldown: 'Vous devez attendre %ds avant de voyager vers %s !'
 msg_err_waypoint_p2p: 'Vous devez être dans une parcelle d''étape %s pour voyager vers une parcelle d''étape %s !'
 msg_err_waypoint_no_road: 'Votre ville n''est pas connectée a cette ville par une route!'

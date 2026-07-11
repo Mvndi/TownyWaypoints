@@ -123,7 +123,10 @@ public class TownyWaypointsCommand extends BaseCommand {
             if (_townBlock.getType().getName().equals(waypointName)
                     && (plotName.equals(waypointPlotName) || waypointPlotName.isEmpty())) {
                 townBlock = _townBlock;
-                break;
+                // If more than one stable, the 1st Unnamed one will be used, else the last named one will be used.
+                if (plotName.equals(Translatable.of("townywaypoints_plot_unnamed").defaultLocale())) {
+                    break;
+                }
             }
         }
 
@@ -197,7 +200,7 @@ public class TownyWaypointsCommand extends BaseCommand {
             if (admin)
                 Messaging.sendMsg(player, Translatable.of("msg_waypoint_travel_warmup"));
             else
-                Messaging.sendMsg(player, Translatable.of("msg_waypoint_travel_warmup_cost", travelcost));
+                Messaging.sendMsg(player, Translatable.of("msg_waypoint_travel_warmup_cost", travelcost, waypointName, plotName));
 
             if (TownyWaypointsSettings.getSplit() != -1
                     && (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE)) {
