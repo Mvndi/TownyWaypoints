@@ -326,7 +326,7 @@ public class TownyWaypointsCommand extends BaseCommand {
                 .toList();
 
         if (waypointTownBlocks.isEmpty()) {
-            Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_not_found", waypointName));
+            Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoints_not_found", waypointName));
         } else {
             int maxPage = Math.floorDiv(waypointTownBlocks.size(), 10);
             if (page < 1) {
