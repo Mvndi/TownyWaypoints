@@ -12,6 +12,9 @@ public enum ConfigNodes {
     LANGUAGE("language",
             "en_US.yml",
             "# The language file you wish to use."),
+    TOWN_SPAWN_REQUIRE_ROAD_CONNECTION(
+            "town_spawn.require_road_connection",
+            "true"),
     WAYPOINTS("waypoints", "", ""),
     WAYPOINTS_TOWNY_ROADS_ENABLED(
             "waypoints.towny_roads.enabled",

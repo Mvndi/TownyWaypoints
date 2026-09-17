@@ -33,6 +33,10 @@ public class TownyWaypointsSettings {
         return Settings.getBoolean(ConfigNodes.WAYPOINTS_RESTRICTIONS_PEER_TO_PEER);
     }
 
+    public static boolean getTownSpawnRequireRoadConnection() {
+        return Settings.getBoolean(ConfigNodes.TOWN_SPAWN_REQUIRE_ROAD_CONNECTION);
+    }
+
     public static boolean getTownyRoadEnabled() {
         return Settings.getBoolean(ConfigNodes.WAYPOINTS_TOWNY_ROADS_ENABLED);
     }

@@ -1,5 +1,15 @@
 package net.mvndicraft.townywaypoints.listeners;
 
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+
+import net.mvndicraft.townywaypoints.settings.TownyWaypointsSettings;
+
+import net.mvndicraft.townywaypoints.hook.TownyRoadsHook;
+
+import com.palmergames.bukkit.towny.object.Resident;
+
+import com.palmergames.bukkit.towny.TownyAPI;
+
 import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.event.PlotPreChangeTypeEvent;
 import com.palmergames.bukkit.towny.event.TownBlockTypeRegisterEvent;
@@ -194,6 +204,9 @@ public final class TownyListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+        if (!TownyWaypointsSettings.getTownSpawnRequireRoadConnection())
+            return;
+
         String[] args = event.getMessage().substring(1).split("\\s+");
         if (args.length < 2)
             return;
