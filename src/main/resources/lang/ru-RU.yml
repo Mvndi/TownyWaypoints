@@ -37,7 +37,7 @@ msg_err_waypoint_create_insufficient_funds: 'Недостаточно средс
 msg_err_waypoint_create_insufficient_permission: 'У вас нет прав на создание точки типа %s!'
 msg_err_waypoint_travel_too_far: 'Точка %s слишком далеко! Максимальная дистанция — %d.'
 msg_waypoint_travel_warmup: 'Приготовьтесь, телепортация скоро начнется...'
-msg_waypoint_travel_warmup_cost: 'Стоимость пути — %.2f. Ожидайте телепортации...'
+msg_waypoint_travel_warmup_cost: 'Стоимость пути — %.2f. Ожидайте телепортации to %s %s...'
 msg_err_waypoint_travel_cooldown: 'Нужно подождать %ds перед перемещением к %s!'
 msg_err_waypoint_p2p: 'Нужно стоять на участке %s, чтобы переместиться к другой точке %s!'
 msg_err_waypoint_set_spawn_insufficient_permission: 'У вас нет прав, чтобы менять здесь точку появления!'

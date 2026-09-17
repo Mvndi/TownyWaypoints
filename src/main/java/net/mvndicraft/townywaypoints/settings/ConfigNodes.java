@@ -5,6 +5,10 @@ public enum ConfigNodes {
             "version",
             "",
             "# This is the current version. Please do not edit."),
+    DEBUG(
+            "debug",
+            "false",
+            ""),
     LANGUAGE("language",
             "en_US.yml",
             "# The language file you wish to use."),
@@ -54,9 +58,9 @@ public enum ConfigNodes {
             "# The amount of seconds a player must wait between waypoint travels."),
     WAYPOINTS_RESTRICTIONS_STABLE_COOLDOWN(
             "waypoints.restrictions.stable_cooldown",
-            "4",
+            "300",
             "",
-            "# Base cooldown in minutes for stable waypoint teleports. Reduced by stable_cooldown_road_reduction% per road the destination town has.",
+            "# Base cooldown in seconds for stable waypoint teleports. Reduced by stable_cooldown_road_reduction% per road the destination town has.",
             "# Disabled with value of -1"),
     WAYPOINTS_RESTRICTIONS_STABLE_COOLDOWN_ROAD_REDUCTION(
             "waypoints.restrictions.stable_cooldown_road_reduction",

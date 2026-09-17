@@ -16,11 +16,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.stream.IntStream;
 import net.milkbowl.vault2.economy.Economy;
 import net.mvndicraft.townywaypoints.commands.TownyWaypointsCommand;
 import net.mvndicraft.townywaypoints.listeners.TownyListener;
 import net.mvndicraft.townywaypoints.settings.Settings;
+import net.mvndicraft.townywaypoints.settings.TownyWaypointsSettings;
 import net.mvndicraft.townywaypoints.util.LocationUtil;
 import net.mvndicraft.townywaypoints.util.TownBlockMetaDataController;
 import org.bukkit.Bukkit;
@@ -217,4 +220,25 @@ public class TownyWaypoints extends JavaPlugin {
     public List<String> getOpenStatuses() {
         return open_statuses;
     }
+
+    // Usual log with debug level
+    public static void log(Level level, String message) { getInstance().getLogger().log(level, message); }
+    public static void log(Level level, Supplier<String> messageProvider) { getInstance().getLogger().log(level, messageProvider); }
+    public static void log(Level level, String message, Throwable e) { getInstance().getLogger().log(level, message, e); }
+    public static void debug(String message) {
+        if (TownyWaypointsSettings.getDebug()) {
+            log(Level.INFO, message);
+        }
+    }
+    public static void debug(Supplier<String> messageProvider) {
+        if (TownyWaypointsSettings.getDebug()) {
+            log(Level.INFO, messageProvider);
+        }
+    }
+    public static void info(String message) { log(Level.INFO, message); }
+    public static void info(String message, Throwable e) { log(Level.INFO, message, e); }
+    public static void warning(String message) { log(Level.WARNING, message); }
+    public static void warning(String message, Throwable e) { log(Level.WARNING, message, e); }
+    public static void error(String message) { log(Level.SEVERE, message); }
+    public static void error(String message, Throwable e) { log(Level.SEVERE, message, e); }
 }
