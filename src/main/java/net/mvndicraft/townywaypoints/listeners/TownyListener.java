@@ -14,6 +14,7 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.event.PlotPreChangeTypeEvent;
 import com.palmergames.bukkit.towny.event.TownBlockTypeRegisterEvent;
+import com.palmergames.bukkit.towny.event.TownSpawnEvent;
 import com.palmergames.bukkit.towny.event.TranslationLoadEvent;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
@@ -204,19 +205,10 @@ public final class TownyListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+    public void onPlayerTSpawn(TownSpawnEvent event) {
         if (!TownyWaypointsSettings.getTownSpawnRequireRoadConnection())
             return;
         if (!SiegeWarHook.roadRestrictionsApply())
-            return;
-
-        String[] args = event.getMessage().substring(1).split("\\s+");
-        if (args.length < 2)
-            return;
-        String base = args[0].toLowerCase();
-        if (!base.equals("t") && !base.equals("town"))
-            return;
-        if (!args[1].equalsIgnoreCase("spawn"))
             return;
 
         Player player = event.getPlayer();
@@ -227,31 +219,20 @@ public final class TownyListener implements Listener {
         if (resident == null || !resident.hasTown())
             return;
 
-        Town playerTown;
-        try {
-            playerTown = resident.getTown();
-        } catch (NotRegisteredException e) {
-            return;
-        }
-
-        TownBlock currentBlock = TownyAPI.getInstance().getTownBlock(player);
-        if (currentBlock == null) {
-            event.setCancelled(true);
+        Town fromTown = event.getFromTown();
+        if (fromTown == null) {
             Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
             return;
         }
+        Town toTown = event.getToTown();
 
-        Town currentTown = currentBlock.getTownOrNull();
-        if (currentTown == null) {
-            event.setCancelled(true);
-            Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
-            return;
-        }
-
-        if (currentTown.equals(playerTown))
+        if (fromTown.equals(toTown))
             return;
 
-        if (TownyRoadsHook.isEnabled() && TownyRoadsHook.areConnected(playerTown, currentTown))
+        if (TownyRoadsHook.isEnabled() && TownyRoadsHook.areConnected(fromTown, toTown))
+            return;
+
+        if(TownyRoadsHook.isEnabled() && TownyRoadsHook.areConnected(toTown, fromTown))
             return;
 
         event.setCancelled(true);

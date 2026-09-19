@@ -9,14 +9,14 @@ plugins {
 }
 
 group = "net.mvndicraft.townywaypoints"
-version = "1.10.1"
+version = "1.11.0"
 description = "Configurable plot types for Towny that players can teleport between."
 java.sourceCompatibility = JavaVersion.VERSION_21
 val mainMinecraftVersion = "1.21.11"
 val lowestSupportedMinecraftVersion = "1.20"
 val supportedMinecraftVersions = "$lowestSupportedMinecraftVersion - $mainMinecraftVersion"
 val townyVersion = "0.103.0.0"
-val townyRoadsVersion = "0.7.0"
+val townyRoadsVersion = "1.2.1"
 val vaultUnlockedVersion = "2.10.0"
 
 repositories {
