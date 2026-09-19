@@ -18,6 +18,7 @@ val supportedMinecraftVersions = "$lowestSupportedMinecraftVersion - $mainMinecr
 val townyVersion = "0.103.0.0"
 val townyRoadsVersion = "1.2.1"
 val vaultUnlockedVersion = "2.10.0"
+val siegeWarVersion = "3.6.2"
 
 repositories {
     mavenLocal()
@@ -35,6 +36,7 @@ dependencies {
     compileOnly("io.github.townyadvanced.commentedconfiguration:CommentedConfiguration:1.0.0")
     compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.10")
     compileOnly("net.mvndicraft.townyroads:townyroads:$townyRoadsVersion")
+    compileOnly("com.github.TownyAdvanced:SiegeWar:$siegeWarVersion") { isTransitive = false }
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("com.github.Anon8281:UniversalScheduler:0.1.6")
     implementation("fr.formiko.mc.biomeutils:biomeutils:1.1.14")
