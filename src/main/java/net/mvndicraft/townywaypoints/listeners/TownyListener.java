@@ -220,19 +220,15 @@ public final class TownyListener implements Listener {
             return;
 
         Town fromTown = event.getFromTown();
-        if (fromTown == null) {
-            Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
-            return;
-        }
         Town toTown = event.getToTown();
 
-        if (fromTown.equals(toTown))
+        if (toTown == null || toTown.equals(fromTown))
             return;
 
         if (TownyRoadsHook.isEnabled() && TownyRoadsHook.areConnected(fromTown, toTown))
             return;
 
-        if(TownyRoadsHook.isEnabled() && TownyRoadsHook.areConnected(toTown, fromTown))
+        if (TownyRoadsHook.isEnabled() && TownyRoadsHook.areConnected(toTown, TownyRoadsHook.getRoad(player.getLocation())))
             return;
 
         event.setCancelled(true);
