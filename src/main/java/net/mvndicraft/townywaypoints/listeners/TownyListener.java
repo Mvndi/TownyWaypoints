@@ -4,6 +4,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import net.mvndicraft.townywaypoints.settings.TownyWaypointsSettings;
 
+import net.mvndicraft.townywaypoints.hook.SiegeWarHook;
 import net.mvndicraft.townywaypoints.hook.TownyRoadsHook;
 
 import com.palmergames.bukkit.towny.object.Resident;
@@ -205,6 +206,8 @@ public final class TownyListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         if (!TownyWaypointsSettings.getTownSpawnRequireRoadConnection())
+            return;
+        if (!SiegeWarHook.roadRestrictionsApply())
             return;
 
         String[] args = event.getMessage().substring(1).split("\\s+");

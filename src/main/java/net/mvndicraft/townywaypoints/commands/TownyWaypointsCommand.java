@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import net.mvndicraft.townywaypoints.TownyWaypoints;
 import net.mvndicraft.townywaypoints.VehicleTravelWarmup;
 import net.mvndicraft.townywaypoints.Waypoint;
+import net.mvndicraft.townywaypoints.hook.SiegeWarHook;
 import net.mvndicraft.townywaypoints.hook.TownyRoadsHook;
 import net.mvndicraft.townywaypoints.settings.Settings;
 import net.mvndicraft.townywaypoints.settings.TownyWaypointsSettings;
@@ -181,7 +182,7 @@ public class TownyWaypointsCommand extends BaseCommand {
             return;
         }
 
-        if (!admin && TownyRoadsHook.isEnabled()) {
+        if (!admin && TownyRoadsHook.isEnabled() && SiegeWarHook.roadRestrictionsApply()) {
             Town playerTown = playerTownBlock.getTownOrNull();
             if (playerTown != null && !playerTown.equals(town) && !TownyRoadsHook.areConnected(playerTown, town)) {
                 Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_no_road"));
