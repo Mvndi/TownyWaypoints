@@ -6,6 +6,7 @@ import net.mvndicraft.townywaypoints.settings.TownyWaypointsSettings;
 
 import net.mvndicraft.townywaypoints.hook.SiegeWarHook;
 import net.mvndicraft.townywaypoints.hook.TownyRoadsHook;
+import net.mvndicraft.townyroads.Road;
 
 import com.palmergames.bukkit.towny.object.Resident;
 
@@ -219,12 +220,19 @@ public final class TownyListener implements Listener {
         if (resident == null || !resident.hasTown())
             return;
 
+        Town toTown = event.getToTown();
         Town fromTown = event.getFromTown();
         if (fromTown == null) {
+            // roads aren't claimed, so standing on one leaves fromTown null
+            // let it through if that road reaches the town they're spawning to
+            Road road = TownyRoadsHook.isEnabled() ? TownyRoadsHook.getRoad(player.getLocation()) : null;
+            if (road != null && toTown != null && TownyRoadsHook.areConnected(toTown, road))
+                return;
+
+            event.setCancelled(true);
             Messaging.sendErrorMsg(player, Translatable.of("msg_err_town_spawn_not_in_connected_town"));
             return;
         }
-        Town toTown = event.getToTown();
 
         if (fromTown.equals(toTown))
             return;
