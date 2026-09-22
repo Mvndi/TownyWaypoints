@@ -27,6 +27,11 @@ public final class TownyRoadsHook {
     }
 
     public static boolean areConnected(Town town, Road road) {
+        // getRoad returns null when the player isn't stood on one, and the road manager
+        // doesn't check for that before calling into it
+        if (road == null)
+            return false;
+
         return TownyRoadsPlugin.getInstance().getRoadManager().areConnected(town, road);
     }
 }
