@@ -1,6 +1,7 @@
 package net.mvndicraft.townywaypoints.hook;
 
 import com.gmail.goosius.siegewar.SiegeWarAPI;
+import net.mvndicraft.townywaypoints.settings.TownyWaypointsSettings;
 import org.bukkit.Bukkit;
 
 public final class SiegeWarHook {
@@ -15,6 +16,8 @@ public final class SiegeWarHook {
     }
 
     public static boolean roadRestrictionsApply() {
+        if (!TownyWaypointsSettings.getRoadRestrictionsBattleSessionOnly())
+            return true;
         return isEnabled() && isBattleSessionActive();
     }
 }

@@ -15,6 +15,12 @@ public enum ConfigNodes {
     TOWN_SPAWN_REQUIRE_ROAD_CONNECTION(
             "town_spawn.require_road_connection",
             "true"),
+    ROAD_RESTRICTIONS_BATTLE_SESSION_ONLY(
+            "road_restrictions.battle_session_only",
+            "true",
+            "",
+            "# If true, road requirements for /twp and /t spawn only apply during SiegeWar battle sessions.",
+            "# If false, they apply at all times."),
     WAYPOINTS("waypoints", "", ""),
     WAYPOINTS_TOWNY_ROADS_ENABLED(
             "waypoints.towny_roads.enabled",
