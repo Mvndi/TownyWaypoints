@@ -32,6 +32,9 @@ public final class TownyRoadsHook {
         if (road == null)
             return false;
 
+        if (road.getTownsView().contains(town))
+            return road.isValid() && !road.isBlocked();
+
         return TownyRoadsPlugin.getInstance().getRoadManager().areConnected(town, road);
     }
 }
