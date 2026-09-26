@@ -283,27 +283,44 @@ public class TownyWaypointsCommand extends BaseCommand {
         if(vehicle != null) {
             closeTravelingPlayerVehicleInventory(vehicle, player);
     
-            vehicle.teleportAsync(loc, TeleportCause.COMMAND)
-                    .thenRun(() -> TownyWaypoints.getScheduler().runTask(loc, () -> {
-                        if (!vehicle.getPassengers().contains(player))
-                            player.teleportAsync(loc, TeleportCause.COMMAND).thenRun(() -> vehicle.addPassenger(player));
-    
-                        Location vehicleLoc = vehicle.getLocation();
-                        for (Entity passenger : extraPassengers) {
-                            if (!passenger.isValid() || passenger.isDead())
-                                continue;
-                            passenger.teleport(vehicleLoc);
-                            if (!vehicle.getPassengers().contains(passenger))
-                                passenger.teleportAsync(loc, TeleportCause.COMMAND)
-                                        .thenRun(() -> vehicle.addPassenger(passenger));
+            vehicle.teleportAsync(loc, TeleportCause.COMMAND).thenAccept(vehicleTeleported -> {
+                if (!vehicleTeleported) {
+                    return;
+                }
+
+                if (!vehicle.getPassengers().contains(player)) {
+                    player.teleportAsync(loc, TeleportCause.COMMAND).thenAccept(playerTeleported -> {
+                        if (playerTeleported) {
+                            vehicle.addPassenger(player);
                         }
-    
-                        closeTravelingPlayerVehicleInventory(vehicle, player);
-                        cooldownCallback.run();
-                    }));
+                    });
+                }
+
+                for (Entity passenger : extraPassengers) {
+                    if (!passenger.isValid() || passenger.isDead()) {
+                        continue;
+                    }
+
+                    if (vehicle.getPassengers().contains(passenger)) {
+                        continue;
+                    }
+
+                    passenger.teleportAsync(loc, TeleportCause.COMMAND).thenAccept(passengerTeleported -> {
+                        if (passengerTeleported) {
+                            vehicle.addPassenger(passenger);
+                        }
+                    });
+                }
+
+                closeTravelingPlayerVehicleInventory(vehicle, player);
+                cooldownCallback.run();
+            });
         } else {
-            player.teleportAsync(loc, TeleportCause.COMMAND);
-            cooldownCallback.run();
+            player.teleportAsync(loc, TeleportCause.COMMAND).thenAccept(playerTeleported -> {
+                if (playerTeleported) {
+                    cooldownCallback.run();
+                }
+            });
         }
     }
 
