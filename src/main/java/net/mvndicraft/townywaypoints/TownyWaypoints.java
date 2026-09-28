@@ -93,6 +93,7 @@ public class TownyWaypoints extends JavaPlugin {
         return new Waypoint(config.getString("name"), config.getString("mapKey"), config.getDouble("cost"),
                 config.getDouble("travel_cost"), config.getInt("max"), config.getBoolean("sea"),
                 config.getBoolean("travel_with_vehicle"), config.getString("permission"), config.getInt("max_distance"),
+                config.getInt("min_homeblock_distance"),
                 config.contains(instance.BIOME_TAGS_KEY) ? config.getStringList(instance.BIOME_TAGS_KEY)
                         : new ArrayList<>(),
                 config.contains(instance.BIOME_KEY) ? config.getStringList(instance.BIOME_KEY) : new ArrayList<>());

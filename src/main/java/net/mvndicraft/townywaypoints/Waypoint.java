@@ -12,11 +12,12 @@ public final class Waypoint {
     private final boolean travelWithVehicle;
     private final String permission;
     private final int maxDistance;
+    private final int minHomeBlockDistance;
     private final List<String> allowedBiomeTags;
     private final List<String> allowedBiomes;
 
     public Waypoint(String name, String mapKey, double cost, double travelCost, int max, boolean sea,
-            boolean travelWithVehicle, String permission, int maxDistance, List<String> allowedBiomeTags,
+            boolean travelWithVehicle, String permission, int maxDistance, int minHomeBlockDistance, List<String> allowedBiomeTags,
             List<String> allowedBiomes) {
         this.name = name;
         this.mapKey = mapKey;
@@ -27,6 +28,7 @@ public final class Waypoint {
         this.travelWithVehicle = travelWithVehicle;
         this.permission = permission;
         this.maxDistance = maxDistance;
+        this.minHomeBlockDistance = minHomeBlockDistance;
         this.allowedBiomeTags = allowedBiomeTags;
         this.allowedBiomes = allowedBiomes;
     }
@@ -65,6 +67,10 @@ public final class Waypoint {
 
     public int getMaxDistance() {
         return maxDistance;
+    }
+
+    public int getMinHomeBlockDistance() {
+        return minHomeBlockDistance;
     }
 
     public List<String> getAllowedBiomeTags() {
