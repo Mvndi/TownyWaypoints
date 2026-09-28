@@ -15,8 +15,16 @@ public final class SiegeWarHook {
         return SiegeWarAPI.isBattleSessionActive();
     }
 
-    public static boolean roadRestrictionsApply() {
-        if (!TownyWaypointsSettings.getRoadRestrictionsBattleSessionOnly())
+    public static boolean townSpawnRoadRestrictionsApply() {
+        return roadRestrictionsApply(TownyWaypointsSettings.getTownSpawnBattleSessionOnly());
+    }
+
+    public static boolean waypointRoadRestrictionsApply() {
+        return roadRestrictionsApply(TownyWaypointsSettings.getWaypointsRoadsBattleSessionOnly());
+    }
+
+    private static boolean roadRestrictionsApply(boolean battleSessionOnly) {
+        if (!battleSessionOnly)
             return true;
         return isEnabled() && isBattleSessionActive();
     }

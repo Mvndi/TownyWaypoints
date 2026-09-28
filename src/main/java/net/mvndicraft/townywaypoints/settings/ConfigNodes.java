@@ -15,12 +15,12 @@ public enum ConfigNodes {
     TOWN_SPAWN_REQUIRE_ROAD_CONNECTION(
             "town_spawn.require_road_connection",
             "true"),
-    ROAD_RESTRICTIONS_BATTLE_SESSION_ONLY(
-            "road_restrictions.battle_session_only",
+    TOWN_SPAWN_BATTLE_SESSION_ONLY(
+            "town_spawn.battle_session_only",
             "true",
             "",
-            "# If true, road requirements for /twp and /t spawn only apply during SiegeWar battle sessions.",
-            "# If false, they apply at all times."),
+            "# If true, the road requirement for /t spawn only applies during SiegeWar battle sessions.",
+            "# If false, it applies at all times."),
     WAYPOINTS("waypoints", "", ""),
     WAYPOINTS_TOWNY_ROADS_ENABLED(
             "waypoints.towny_roads.enabled",
@@ -28,6 +28,12 @@ public enum ConfigNodes {
             "",
             "# If true a road will be required between towns used for waypoints.",
             "# Disabled with value of false"),
+    WAYPOINTS_TOWNY_ROADS_BATTLE_SESSION_ONLY(
+            "waypoints.towny_roads.battle_session_only",
+            "true",
+            "",
+            "# If true, the road requirement for /twp only applies during SiegeWar battle sessions.",
+            "# If false, it applies at all times."),
     WAYPOINTS_ECONOMY(
             "waypoints.economy",
             "",

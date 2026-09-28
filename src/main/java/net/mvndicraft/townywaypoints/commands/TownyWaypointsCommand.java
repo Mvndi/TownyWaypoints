@@ -182,7 +182,7 @@ public class TownyWaypointsCommand extends BaseCommand {
             return;
         }
 
-        if (!admin && TownyRoadsHook.isEnabled() && SiegeWarHook.roadRestrictionsApply()) {
+        if (!admin && TownyRoadsHook.isEnabled() && SiegeWarHook.waypointRoadRestrictionsApply()) {
             Town playerTown = playerTownBlock.getTownOrNull();
             if (playerTown != null && !playerTown.equals(town) && !TownyRoadsHook.areConnected(playerTown, town)) {
                 Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_no_road"));

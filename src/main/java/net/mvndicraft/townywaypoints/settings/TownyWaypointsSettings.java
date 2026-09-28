@@ -37,8 +37,12 @@ public class TownyWaypointsSettings {
         return Settings.getBoolean(ConfigNodes.TOWN_SPAWN_REQUIRE_ROAD_CONNECTION);
     }
 
-    public static boolean getRoadRestrictionsBattleSessionOnly() {
-        return Settings.getBoolean(ConfigNodes.ROAD_RESTRICTIONS_BATTLE_SESSION_ONLY);
+    public static boolean getTownSpawnBattleSessionOnly() {
+        return Settings.getBoolean(ConfigNodes.TOWN_SPAWN_BATTLE_SESSION_ONLY);
+    }
+
+    public static boolean getWaypointsRoadsBattleSessionOnly() {
+        return Settings.getBoolean(ConfigNodes.WAYPOINTS_TOWNY_ROADS_BATTLE_SESSION_ONLY);
     }
 
     public static boolean getTownyRoadEnabled() {

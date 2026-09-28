@@ -208,7 +208,7 @@ public final class TownyListener implements Listener {
     public void onPlayerTSpawn(TownSpawnEvent event) {
         if (!TownyWaypointsSettings.getTownSpawnRequireRoadConnection())
             return;
-        if (!SiegeWarHook.roadRestrictionsApply())
+        if (!SiegeWarHook.townSpawnRoadRestrictionsApply())
             return;
 
         Player player = event.getPlayer();
