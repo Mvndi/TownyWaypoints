@@ -187,7 +187,28 @@ public class TownyWaypoints extends JavaPlugin {
         TownyListener townyListener = new TownyListener();
         plugMan.registerEvents(townyListener, instance);
 
+        logInvalidWaypoints();
+
         getLogger().info("enabled!");
+    }
+
+    public static void logInvalidWaypoints() {
+        int invalid = 0;
+        for (TownBlock townBlock : TownyAPI.getInstance().getTownBlocks()) {
+            Waypoint waypoint = waypoints.get(townBlock.getType().getName());
+            if (waypoint == null)
+                continue;
+            int dist = TownyListener.getHomeBlockDistance(townBlock);
+            if (!waypoint.isTooCloseToHomeBlock(dist))
+                continue;
+            invalid++;
+            Town town = townBlock.getTownOrNull();
+            warning(String.format("Invalid %s in %s at %s (%d, %d): %d chunks from homeblock, minimum is %d",
+                    waypoint.getName(), town == null ? "?" : town.getName(), townBlock.getWorld().getName(),
+                    townBlock.getX(), townBlock.getZ(), dist, waypoint.getMinHomeBlockDistance()));
+        }
+        if (invalid > 0)
+            warning(invalid + " waypoint plot(s) are too close to their town homeblock");
     }
 
     @Override

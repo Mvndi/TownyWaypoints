@@ -88,6 +88,16 @@ public final class TownyListener implements Listener {
         return waypoint.getAllowedBiomes().contains(loc.getBlock().getBiome().toString());
     }
 
+    public static int getHomeBlockDistance(TownBlock townBlock) {
+        Town town = townBlock.getTownOrNull();
+        TownBlock homeBlock = town == null ? null : town.getHomeBlockOrNull();
+        if (homeBlock == null || !homeBlock.getWorld().equals(townBlock.getWorld()))
+            return -1;
+        int dx = homeBlock.getX() - townBlock.getX();
+        int dz = homeBlock.getZ() - townBlock.getZ();
+        return (int) Math.sqrt(dx * dx + dz * dz);
+    }
+
     @EventHandler
     public void onTownyLoadTownBlockTypes(TownBlockTypeRegisterEvent event) {
         TownyWaypoints.loadWaypoints();
@@ -145,18 +155,12 @@ public final class TownyListener implements Listener {
             return;
         }
 
-        int minHomeDist = waypoint.getMinHomeBlockDistance();
-        TownBlock homeBlock = townBlock.getTown().getHomeBlockOrNull();
-        if (minHomeDist > 0 && homeBlock != null && homeBlock.getWorld().equals(townBlock.getWorld())) {
-            int dx = homeBlock.getX() - townBlock.getX();
-            int dz = homeBlock.getZ() - townBlock.getZ();
-            int dist = (int) Math.sqrt(dx * dx + dz * dz);
-            if (dist < minHomeDist) {
-                event.setCancelMessage(
-                        Translatable.of("msg_err_too_close_to_homeblock", minHomeDist, dist).defaultLocale());
-                event.setCancelled(true);
-                return;
-            }
+        int dist = getHomeBlockDistance(townBlock);
+        if (waypoint.isTooCloseToHomeBlock(dist)) {
+            event.setCancelMessage(Translatable
+                    .of("msg_err_too_close_to_homeblock", waypoint.getMinHomeBlockDistance(), dist).defaultLocale());
+            event.setCancelled(true);
+            return;
         }
 
         int max = waypoint.getMax();

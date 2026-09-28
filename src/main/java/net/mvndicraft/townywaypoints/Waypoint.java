@@ -73,6 +73,10 @@ public final class Waypoint {
         return minHomeBlockDistance;
     }
 
+    public boolean isTooCloseToHomeBlock(int homeBlockDistance) {
+        return minHomeBlockDistance > 0 && homeBlockDistance >= 0 && homeBlockDistance < minHomeBlockDistance;
+    }
+
     public List<String> getAllowedBiomeTags() {
         return allowedBiomeTags;
     }
