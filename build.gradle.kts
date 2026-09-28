@@ -16,7 +16,7 @@ val mainMinecraftVersion = "1.21.11"
 val lowestSupportedMinecraftVersion = "1.20"
 val supportedMinecraftVersions = "$lowestSupportedMinecraftVersion - $mainMinecraftVersion"
 val townyVersion = "0.103.0.0"
-val townyRoadsVersion = "1.2.1"
+val townyRoadsVersion = "1.3.0"
 val vaultUnlockedVersion = "2.10.0"
 val siegeWarVersion = "3.6.2"
 
