@@ -122,7 +122,7 @@ public class TownyWaypointsCommand extends BaseCommand {
                 plotName = Translatable.of("townywaypoints_plot_unnamed").defaultLocale();
 
             if (_townBlock.getType().getName().equals(waypointName)
-                    && (plotName.equals(waypointPlotName) || waypointPlotName.isEmpty())) {
+                    && (plotName.equals(waypointPlotName.replace(' ', '_')) || waypointPlotName.isEmpty())) {
                 townBlock = _townBlock;
                 // If more than one stable, the 1st Unnamed one will be used, else the last named one will be used.
                 if (plotName.equals(Translatable.of("townywaypoints_plot_unnamed").defaultLocale())) {
