@@ -16,6 +16,7 @@ description: >
 townywaypoints_plugin_prefix: '&f[&6TownyWaypoints&f]&r '
 msg_err_biome_not_allowed: 'Cette parcelle ne peu pas être placée dans le biome %s !'
 msg_err_max_plots: 'Seulement %d parcelle(s) de ce type sont autorisés !'
+msg_err_too_close_to_homeblock: 'Cette parcelle doit être à au moins %d chunks du homeblock de la ville (actuellement %d).'
 msg_err_status_invalid: 'Status invalide !'
 open_status_all: 'tous'
 open_status_allies: 'alliés'
@@ -47,3 +48,7 @@ msg_err_waypoint_set_open_insufficient_permission: 'Vous n''avez pas la permissi
 msg_deposit_reason: 'Étape de voyage'
 msg_err_waypoints_not_found: "Pas d'étapes trouvées !"
 msg_page: "Page %s"
+townywaypoints_inaccessible: '(inaccessible)'
+
+msg_err_waypoint_open_enforced: 'Le roi occupant a imposé le paramètre d''ouverture de cette étape. Vous ne pouvez pas le changer ni son type de parcelle.'
+msg_waypoint_open_enforced: 'Status de l''étape imposé comme %s pour cette occupation!'
