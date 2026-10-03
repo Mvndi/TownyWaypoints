@@ -12,10 +12,17 @@ import org.bukkit.entity.Player;
 public class TownBlockMetaDataController {
 
     public static final String statusKey = "townywaypoints_status";
+    public static final String enforcedByKey = "townywaypoints_enforced_by";
     private static final String spawnWorldKey = "townywaypoints_spawn_world";
     private static final String spawnXKey = "townywaypoints_spawn_x";
     private static final String spawnYKey = "townywaypoints_spawn_y";
     private static final String spawnZKey = "townywaypoints_spawn_z";
+
+    public static boolean isOpenEnforced(TownBlock townBlock) {
+        Town town = townBlock.getTownOrNull();
+        return town != null && town.isConquered() && town.hasNation()
+                && town.getNationOrNull().getUUID().toString().equals(getSdf(townBlock, enforcedByKey));
+    }
 
     public static int getIdf(TownBlock townBlock, String key) {
         if (townBlock.hasMeta(key)) {

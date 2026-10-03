@@ -61,15 +61,26 @@ public class TownyWaypointsCommand extends BaseCommand {
     @CommandCompletion("@open_statuses @nothing")
     @Description("Change which people the plot is open to teleports from.")
     public static void onSetOpen(Player player, String status) {
-        if (!player.hasPermission(TownyWaypoints.ADMIN_PERMISSION)
-                && !player.hasPermission("towny.command.town.toggle.public")) {
-            Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_set_open_insufficient_permission"));
-            return;
-        }
-
         TownBlock townBlock = TownyAPI.getInstance().getTownBlock(player);
         if (townBlock == null || !TownyWaypoints.getWaypoints().containsKey(townBlock.getTypeName())) {
             Messaging.sendErrorMsg(player, Translatable.of("msg_err_not_in_townblock"));
+            return;
+        }
+
+        Town town = townBlock.getTownOrNull();
+        Resident resident = townyAPI.getResident(player);
+        boolean admin = player.hasPermission(TownyWaypoints.ADMIN_PERMISSION);
+        boolean occupyingKing = town != null && town.isConquered() && town.hasNation()
+                && resident != null && resident.equals(town.getNationOrNull().getKing())
+                && (townBlock.getTypeName().equals("stable") || townBlock.getTypeName().equals("seaport"));
+        if (!admin && TownBlockMetaDataController.isOpenEnforced(townBlock) && !occupyingKing) {
+            Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_open_enforced"));
+            return;
+        }
+        if (!admin && !occupyingKing && (resident == null || town == null
+                || !town.equals(resident.getTownOrNull())
+                || !player.hasPermission("towny.command.town.toggle.public"))) {
+            Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_set_open_insufficient_permission"));
             return;
         }
 
@@ -79,6 +90,13 @@ public class TownyWaypointsCommand extends BaseCommand {
         }
 
         TownBlockMetaDataController.setSdf(townBlock, TownBlockMetaDataController.statusKey, status);
+
+        if (occupyingKing) {
+            TownBlockMetaDataController.setSdf(townBlock, TownBlockMetaDataController.enforcedByKey,
+                    town.getNationOrNull().getUUID().toString());
+            Messaging.sendMsg(player, Translatable.of("msg_waypoint_open_enforced", status));
+            return;
+        }
 
         Messaging.sendMsg(player, Translatable.of("msg_status_set", status));
     }
