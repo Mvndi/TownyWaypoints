@@ -150,7 +150,7 @@ public class TownyWaypoints extends JavaPlugin {
             int possibilities = (int) TownyAPI.getInstance().getTownBlocks().stream()
                     .filter(tb -> tb.getType().getName().equals(waypointName)).filter(TownBlock::hasTown).filter(tb -> TownBlockMetaDataController.getSpawn(tb).getWorld() != null)
                     .count();
-            int maxPage = Math.floorDiv(possibilities, 10);
+            int maxPage = Math.ceilDiv(possibilities, 10);
             return IntStream.rangeClosed(1, maxPage).mapToObj(String::valueOf).toList();
         });
         manager.getCommandCompletions().registerAsyncCompletion("waypoints", c -> getWaypoints().keySet());
