@@ -48,6 +48,7 @@ msg_err_waypoint_set_open_insufficient_permission: 'You do not have permission t
 msg_deposit_reason: 'Waypoint Travel'
 msg_err_waypoints_not_found: 'No waypoints found!'
 msg_page: 'Page %s'
+townywaypoints_inaccessible: '(inaccessible)'
 
 msg_err_waypoint_open_enforced: 'The occupying king has enforced this waypoint''s open setting. You cannot change it or its plot type.'
 msg_waypoint_open_enforced: 'Waypoint status enforced as %s for this occupation!'

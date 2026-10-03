@@ -388,7 +388,7 @@ public class TownyWaypointsCommand extends BaseCommand {
             String tenValues = waypointTownBlocks.stream().skip((page - 1L) * 10).limit(10).filter(tb -> tb.getTownOrNull() != null && TownBlockMetaDataController.getSpawn(tb).getWorld() != null)
                     .map(tb -> tb.getTownOrNull().getName() + " " + tb.getName() + " "
                             + ((int) LocationUtil.getDistance(player, tb)) + "m"
-                            + (canTravel(player, tb) ? " (accessible)" : ""))
+                            + (canTravel(player, tb) ? "" : " " + Translatable.of("townywaypoints_inaccessible").forLocale(player)))
                     .collect(Collectors.joining("\n"));
             String message = page + "/" + maxPage + "\n" + tenValues;
             Messaging.sendMsg(player, Translatable.of("msg_page", message));
