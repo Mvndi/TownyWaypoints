@@ -1,11 +1,13 @@
 package net.mvndicraft.townywaypoints.commands;
 
 import co.aikar.commands.BaseCommand;
+import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
 import com.palmergames.bukkit.towny.TownyAPI;
@@ -127,7 +129,12 @@ public class TownyWaypointsCommand extends BaseCommand {
     @Syntax("<town> <waypoint> <plot name>")
     @CommandCompletion("@reachable_waypointed_towns @town_waypoints @waypoint_plot_names @nothing")
     @Description("Travel between different waypoints.")
-    public static void onTravel(Player player, String townName, String waypointName, String waypointPlotName) {
+    public static void onTravel(Player player, @Optional String townName, @Optional String waypointName, @Optional String waypointPlotName) {
+        if (townName == null || waypointName == null)
+            throw new InvalidCommandArgument();
+        if (waypointPlotName == null)
+            waypointPlotName = "";
+
         Town town = TownyAPI.getInstance().getTown(townName);
 
         if (town == null)
@@ -283,14 +290,6 @@ public class TownyWaypointsCommand extends BaseCommand {
                 && (admin || CooldownTimerTask.getCooldownRemaining(player.getName(), "waypoint") == 0)
                 && getTravelError(player, townBlock, waypoint, admin ? 0 : waypoint.getTravelCost(),
                         admin, townBlock.getName()) == null;
-    }
-
-    @Subcommand("travel")
-    @Syntax("<town> <waypoint> <plot name>")
-    @CommandCompletion("@reachable_waypointed_towns @town_waypoints @waypoint_plot_names @nothing")
-    @Description("Travel between different waypoints.")
-    public static void onTravel(Player player, String townName, String waypointName) {
-        onTravel(player, townName, waypointName, "");
     }
 
     private static void teleport(@Nonnull final Player player, @Nonnull Location loc, boolean travelWithVehicle, @Nonnull Runnable cooldownCallback, boolean admin) {
