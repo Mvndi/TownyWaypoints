@@ -58,11 +58,21 @@ public class TownyWaypointsCommand extends BaseCommand {
         Messaging.sendMsg(player, Translatable.of("townywaypoints_msg_reload", TownyWaypoints.getInstance().getName()));
     }
 
+    @Subcommand("set")
+    @Syntax("<open|spawn>")
+    @Description("Change a waypoint plot property.")
+    public static void onSet(CommandSender sender) {
+        throw new InvalidCommandArgument();
+    }
+
     @Subcommand("set open")
-    @Syntax("set <property> [<value>]")
+    @Syntax("<status>")
     @CommandCompletion("@open_statuses @nothing")
     @Description("Change which people the plot is open to teleports from.")
-    public static void onSetOpen(Player player, String status) {
+    public static void onSetOpen(Player player, @Optional String status) {
+        if (status == null)
+            throw new InvalidCommandArgument();
+
         TownBlock townBlock = TownyAPI.getInstance().getTownBlock(player);
         if (townBlock == null || !TownyWaypoints.getWaypoints().containsKey(townBlock.getTypeName())) {
             Messaging.sendErrorMsg(player, Translatable.of("msg_err_not_in_townblock"));
@@ -104,7 +114,6 @@ public class TownyWaypointsCommand extends BaseCommand {
     }
 
     @Subcommand("set spawn")
-    @Syntax("set <property> <value>")
     @Description("Set the block a player gets teleported to on arival for a waypoint plot.")
     public static void onSetSpawn(Player player) {
         if (!player.hasPermission(TownyWaypoints.ADMIN_PERMISSION)
@@ -368,7 +377,10 @@ public class TownyWaypointsCommand extends BaseCommand {
     @Syntax("<waypoint> <int>")
     @CommandCompletion("@waypoints @waypoints_pages @nothing")
     @Description("Display the list of waypoints.")
-    public static void onList(Player player, String waypointName, Integer page) {
+    public static void onList(Player player, @Optional String waypointName, @Default("1") Integer page) {
+        if (waypointName == null)
+            throw new InvalidCommandArgument();
+
         // Get the 10 closest waypoints for page 1. Then 10 to 19 for page 2 etc.
         List<TownBlock> waypointTownBlocks = TownyAPI.getInstance().getTownBlocks().stream()
                 .filter(tb -> tb.getType().getName().equals(waypointName)).filter(TownBlock::hasTown).filter(tb -> TownBlockMetaDataController.getSpawn(tb).getWorld() != null)
@@ -392,13 +404,5 @@ public class TownyWaypointsCommand extends BaseCommand {
             String message = page + "/" + maxPage + "\n" + tenValues;
             Messaging.sendMsg(player, Translatable.of("msg_page", message));
         }
-    }
-
-    @Subcommand("list")
-    @Syntax("<waypoint> <int>")
-    @CommandCompletion("@waypoints @waypoints_pages @nothing")
-    @Description("Display the list of waypoints.")
-    public static void onList(Player player, String waypointName) {
-        onList(player, waypointName, 1);
     }
 }
