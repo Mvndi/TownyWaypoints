@@ -52,7 +52,7 @@ public final class VehicleTravelWarmup {
             Entity onlineVehicle = null;
             if(travel.vehicleId()!= null) {
                 onlineVehicle = Bukkit.getEntity(travel.vehicleId());
-                if(!onlineVehicle.isValid()) {
+                if(onlineVehicle == null || !onlineVehicle.isValid()) {
                     return;
                 }
             }

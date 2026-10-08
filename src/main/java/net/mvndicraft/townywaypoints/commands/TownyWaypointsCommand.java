@@ -82,14 +82,7 @@ public class TownyWaypointsCommand extends BaseCommand {
         Town town = townBlock.getTownOrNull();
         Resident resident = townyAPI.getResident(player);
         boolean admin = player.hasPermission(TownyWaypoints.ADMIN_PERMISSION);
-        boolean occupyingKing = town != null && town.isConquered() && town.hasNation()
-                && resident != null && resident.equals(town.getNationOrNull().getKing())
-                && (townBlock.getTypeName().equals("stable") || townBlock.getTypeName().equals("seaport"));
-        if (!admin && TownBlockMetaDataController.isOpenEnforced(townBlock) && !occupyingKing) {
-            Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_open_enforced"));
-            return;
-        }
-        if (!admin && !occupyingKing && (resident == null || town == null
+        if (!admin && (resident == null || town == null
                 || !town.equals(resident.getTownOrNull())
                 || !player.hasPermission("towny.command.town.toggle.public"))) {
             Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_set_open_insufficient_permission"));
@@ -102,13 +95,6 @@ public class TownyWaypointsCommand extends BaseCommand {
         }
 
         TownBlockMetaDataController.setSdf(townBlock, TownBlockMetaDataController.statusKey, status);
-
-        if (occupyingKing) {
-            TownBlockMetaDataController.setSdf(townBlock, TownBlockMetaDataController.enforcedByKey,
-                    town.getNationOrNull().getUUID().toString());
-            Messaging.sendMsg(player, Translatable.of("msg_waypoint_open_enforced", status));
-            return;
-        }
 
         Messaging.sendMsg(player, Translatable.of("msg_status_set", status));
     }
@@ -330,29 +316,9 @@ public class TownyWaypointsCommand extends BaseCommand {
                     return;
                 }
 
-                if (!vehicle.getPassengers().contains(player)) {
-                    player.teleportAsync(loc, TeleportCause.COMMAND).thenAccept(playerTeleported -> {
-                        if (playerTeleported) {
-                            vehicle.addPassenger(player);
-                        }
-                    });
-                }
-
-                for (Entity passenger : extraPassengers) {
-                    if (!passenger.isValid() || passenger.isDead()) {
-                        continue;
-                    }
-
-                    if (vehicle.getPassengers().contains(passenger)) {
-                        continue;
-                    }
-
-                    passenger.teleportAsync(loc, TeleportCause.COMMAND).thenAccept(passengerTeleported -> {
-                        if (passengerTeleported) {
-                            vehicle.addPassenger(passenger);
-                        }
-                    });
-                }
+                followVehicle(player, vehicle, loc);
+                for (Entity passenger : extraPassengers)
+                    followVehicle(passenger, vehicle, loc);
 
                 closeTravelingPlayerVehicleInventory(vehicle, player);
                 cooldownCallback.run();
@@ -364,6 +330,19 @@ public class TownyWaypointsCommand extends BaseCommand {
                 }
             });
         }
+    }
+
+    private static void followVehicle(@Nonnull Entity rider, @Nonnull Entity vehicle, @Nonnull Location loc) {
+        TownyWaypoints plugin = TownyWaypoints.getInstance();
+        rider.getScheduler().run(plugin, task -> {
+            if (!rider.isValid() || rider.isDead() || vehicle.equals(rider.getVehicle()))
+                return;
+
+            rider.teleportAsync(loc, TeleportCause.COMMAND).thenAccept(riderTeleported -> {
+                if (riderTeleported)
+                    vehicle.getScheduler().run(plugin, mountTask -> vehicle.addPassenger(rider), null);
+            });
+        }, null);
     }
 
     private static void closeTravelingPlayerVehicleInventory(@Nonnull Entity vehicle, @Nonnull Player player) {

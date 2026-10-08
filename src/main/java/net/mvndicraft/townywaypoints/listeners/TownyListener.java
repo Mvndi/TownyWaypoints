@@ -99,12 +99,6 @@ public final class TownyListener implements Listener {
     }
 
     @EventHandler
-    public void onNationRemoveTown(com.palmergames.bukkit.towny.event.NationRemoveTownEvent event) {
-        for (TownBlock townBlock : event.getTown().getTownBlocks())
-            TownBlockMetaDataController.setSdf(townBlock, TownBlockMetaDataController.enforcedByKey, "");
-    }
-
-    @EventHandler
     public void onTownyLoadTownBlockTypes(TownBlockTypeRegisterEvent event) {
         TownyWaypoints.loadWaypoints();
     }
@@ -123,13 +117,6 @@ public final class TownyListener implements Listener {
     @EventHandler
     public void onPlotPreChangeTypeEvent(PlotPreChangeTypeEvent event) throws NotRegisteredException {
         TownBlock townBlock = event.getTownBlock();
-        if (TownBlockMetaDataController.isOpenEnforced(townBlock)
-                && (event.getResident().getPlayer() == null
-                    || !event.getResident().getPlayer().hasPermission(TownyWaypoints.ADMIN_PERMISSION))) {
-            event.setCancelMessage(Translatable.of("msg_err_waypoint_open_enforced").defaultLocale());
-            event.setCancelled(true);
-            return;
-        }
         String plotTypeName = event.getNewType().getName();
 
         if (!TownyWaypoints.getWaypoints().containsKey(plotTypeName))
