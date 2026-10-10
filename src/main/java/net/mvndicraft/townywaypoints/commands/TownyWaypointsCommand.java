@@ -82,7 +82,14 @@ public class TownyWaypointsCommand extends BaseCommand {
         Town town = townBlock.getTownOrNull();
         Resident resident = townyAPI.getResident(player);
         boolean admin = player.hasPermission(TownyWaypoints.ADMIN_PERMISSION);
-        if (!admin && (resident == null || town == null
+        boolean occupyingKing = town != null && town.isConquered() && town.hasNation()
+                && resident != null && resident.equals(town.getNationOrNull().getKing())
+                && (townBlock.getTypeName().equals("stable") || townBlock.getTypeName().equals("seaport"));
+        if (!admin && TownBlockMetaDataController.isOpenEnforced(townBlock) && !occupyingKing) {
+            Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_open_enforced"));
+            return;
+        }
+        if (!admin && !occupyingKing && (resident == null || town == null
                 || !town.equals(resident.getTownOrNull())
                 || !player.hasPermission("towny.command.town.toggle.public"))) {
             Messaging.sendErrorMsg(player, Translatable.of("msg_err_waypoint_set_open_insufficient_permission"));
@@ -95,6 +102,13 @@ public class TownyWaypointsCommand extends BaseCommand {
         }
 
         TownBlockMetaDataController.setSdf(townBlock, TownBlockMetaDataController.statusKey, status);
+
+        if (occupyingKing) {
+            TownBlockMetaDataController.setSdf(townBlock, TownBlockMetaDataController.enforcedByKey,
+                    town.getNationOrNull().getUUID().toString());
+            Messaging.sendMsg(player, Translatable.of("msg_waypoint_open_enforced", status));
+            return;
+        }
 
         Messaging.sendMsg(player, Translatable.of("msg_status_set", status));
     }

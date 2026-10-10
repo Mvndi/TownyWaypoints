@@ -50,3 +50,5 @@ msg_err_waypoints_not_found: "Pas d'étapes trouvées !"
 msg_page: "Page %s"
 townywaypoints_inaccessible: '(inaccessible)'
 
+msg_err_waypoint_open_enforced: 'Le roi occupant a imposé le paramètre d''ouverture de cette étape. Vous ne pouvez pas le changer ni son type de parcelle.'
+msg_waypoint_open_enforced: 'Status de l''étape imposé comme %s pour cette occupation!'
