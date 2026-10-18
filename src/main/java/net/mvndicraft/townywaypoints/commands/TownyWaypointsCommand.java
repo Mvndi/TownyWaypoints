@@ -1,5 +1,8 @@
 package net.mvndicraft.townywaypoints.commands;
 
+import net.mvndicraft.townywaypoints.event.WaypointTravelCostEvent;
+import org.bukkit.Bukkit;
+
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.annotation.CommandAlias;
@@ -169,7 +172,7 @@ public class TownyWaypointsCommand extends BaseCommand {
             return;
 
         Waypoint waypoint = TownyWaypoints.getWaypoints().get(waypointName);
-        double travelcost = waypoint.getTravelCost();
+        double travelcost = travelCost(player, waypoint);
 
         boolean admin = player.hasPermission(TownyWaypoints.ADMIN_PERMISSION);
         if (admin) {
@@ -292,12 +295,18 @@ public class TownyWaypointsCommand extends BaseCommand {
         return null;
     }
 
+    private static double travelCost(Player player, Waypoint waypoint) {
+        WaypointTravelCostEvent calculation = new WaypointTravelCostEvent(player.getUniqueId(), waypoint.getTravelCost());
+        Bukkit.getPluginManager().callEvent(calculation);
+        return calculation.getCost();
+    }
+
     private static boolean canTravel(Player player, TownBlock townBlock) {
         Waypoint waypoint = TownyWaypoints.getWaypoints().get(townBlock.getTypeName());
         boolean admin = player.hasPermission(TownyWaypoints.ADMIN_PERMISSION);
         return waypoint != null && townyAPI.getResident(player) != null
                 && (admin || CooldownTimerTask.getCooldownRemaining(player.getName(), "waypoint") == 0)
-                && getTravelError(player, townBlock, waypoint, admin ? 0 : waypoint.getTravelCost(),
+                && getTravelError(player, townBlock, waypoint, admin ? 0 : travelCost(player, waypoint),
                         admin, townBlock.getName()) == null;
     }
 
