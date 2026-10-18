@@ -21,6 +21,9 @@ dependencies:
     SiegeWar:
       load: BEFORE
       required: false
+    squaremap:
+      load: BEFORE
+      required: false
 permissions:
   townywaypoints.admin:
     description: "Allows use of the reload command and disables all permission checks."

@@ -28,6 +28,7 @@ repositories {
     maven("https://repo.glaremasters.me/repository/towny/")
     maven("https://repo.aikar.co/content/groups/aikar/")
     maven("https://repo.codemc.org/repository/maven-public")
+    maven("https://repo.jpenilla.xyz/releases/")
 }
 
 dependencies {
@@ -36,6 +37,7 @@ dependencies {
     compileOnly("io.github.townyadvanced.commentedconfiguration:CommentedConfiguration:1.0.0")
     compileOnly("net.milkbowl.vault:VaultUnlockedAPI:2.10")
     compileOnly("net.mvndicraft.townyroads:townyroads:$townyRoadsVersion")
+    compileOnly("xyz.jpenilla:squaremap-api:1.3.12")
     compileOnly("com.github.TownyAdvanced:SiegeWar:$siegeWarVersion") { isTransitive = false }
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("com.github.Anon8281:UniversalScheduler:0.1.6")

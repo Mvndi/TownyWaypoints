@@ -22,6 +22,7 @@ import java.util.stream.IntStream;
 import net.milkbowl.vault2.economy.Economy;
 import net.mvndicraft.townywaypoints.commands.TownyWaypointsCommand;
 import net.mvndicraft.townywaypoints.listeners.TownyListener;
+import net.mvndicraft.townywaypoints.hook.SquaremapWaypoints;
 import net.mvndicraft.townywaypoints.settings.Settings;
 import net.mvndicraft.townywaypoints.settings.TownyWaypointsSettings;
 import net.mvndicraft.townywaypoints.util.LocationUtil;
@@ -102,6 +103,11 @@ public class TownyWaypoints extends JavaPlugin {
     @Override
     public void onEnable() {
         PluginManager plugMan = Bukkit.getPluginManager();
+
+        if (plugMan.isPluginEnabled("squaremap")) {
+            SquaremapWaypoints squaremapWaypoints = new SquaremapWaypoints(this);
+            scheduler.runTaskTimer(this, squaremapWaypoints::update, 20L, 300L);
+        }
 
         if (!setupEconomy()) {
             getLogger().severe("Disabled due to no Vault dependency found!");
